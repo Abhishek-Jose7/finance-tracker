@@ -1,0 +1,17 @@
+{
+  "node": {
+    "401a14119addef4e8f88460978a38fc9fd672cb80d": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/cash-flow-forecasting.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/dashboard/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "46VVii41zegi1UTXqGqQmUMVuk6N84Cs9al922DnHm0="
+}
