@@ -1,0 +1,16 @@
+# Ignore build artifacts and dependencies
+node_modules
+.next
+out
+build
+dist
+
+# Ignore generated files
+*.log
+.env*
+.DS_Store
+
+# Ignore configuration files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

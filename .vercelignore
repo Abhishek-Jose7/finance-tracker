@@ -1,0 +1,8 @@
+.env
+.env.local
+.env*.local
+.genkit
+node_modules
+.git
+*.log
+.DS_Store

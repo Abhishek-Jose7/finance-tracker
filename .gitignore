@@ -1,33 +1,46 @@
-# Dependency folders
-node_modules/
-.next/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Environment and build files
-.env
-*.env
-env.txt
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# OS files
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
-Thumbs.db
+*.pem
 
-# Logs
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# TypeScript cache
+# vercel
+.vercel
+
+# typescript
 *.tsbuildinfo
+next-env.d.ts
 
-# Output
-dist/
-out/
-build/
+.genkit/*
+.env*
 
-# Misc
-*.log
-# Build output
-.next/
-out/
-dist/
-build/
+# firebase
+firebase-debug.log
+firestore-debug.log
+node_modules

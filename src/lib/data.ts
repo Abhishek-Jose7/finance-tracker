@@ -1,65 +1,48 @@
-import { Banknote, Bitcoin, CreditCard, Landmark, PiggyBank, ReceiptText, ShoppingCart, TrendingUp } from "lucide-react";
+import type { User, Transaction, Category, Alert, Recommendation } from '@/lib/types';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { ShoppingCart, Film, Home, UtensilsCrossed, Car, Shirt, HeartPulse, BookOpen } from 'lucide-react';
 
-export const accounts = [
-  { id: 'acc1', name: 'Chase Checking', type: 'bank', balance: 12540.75, icon: Landmark },
-  { id: 'acc2', name: 'Fidelity Investments', type: 'investment', balance: 85234.00, icon: TrendingUp },
-  { id: 'acc3', name: 'Amex Gold', type: 'loan', balance: -1250.45, icon: CreditCard },
-  { id: 'acc4', name: 'Coinbase', type: 'crypto', balance: 2310.60, icon: Bitcoin },
-  { id: 'acc5', name: 'High-Yield Savings', type: 'bank', balance: 56000.00, icon: PiggyBank },
+export const mockUser: User = {
+  name: 'Abhishek',
+  avatarUrl: PlaceHolderImages.find(img => img.id === 'user-avatar')?.imageUrl || '',
+};
+
+export const mockTransactions: Transaction[] = [
+  { id: '1', description: 'Netflix Subscription', amount: 15.99, category: 'Entertainment', date: '2024-07-20', type: 'expense' },
+  { id: '2', description: 'Grocery Shopping', amount: 75.43, category: 'Groceries', date: '2024-07-19', type: 'expense' },
+  { id: '3', description: 'Salary', amount: 4500, category: 'Income', date: '2024-07-15', type: 'income' },
+  { id: '4', description: 'Dinner with friends', amount: 55.00, category: 'Food', date: '2024-07-18', type: 'expense' },
+  { id: '5', description: 'Gasoline', amount: 40.25, category: 'Transport', date: '2024-07-17', type: 'expense' },
+  { id: '6', description: 'New T-shirt', amount: 25.00, category: 'Shopping', date: '2024-07-16', type: 'expense' },
 ];
 
-export const transactions = [
-  { id: 'trx1', date: '2024-07-28', description: 'Paycheck', category: 'Income', amount: 3500.00, type: 'income', icon: Banknote },
-  { id: 'trx2', date: '2024-07-27', description: 'Trader Joe\'s', category: 'Groceries', amount: -154.32, type: 'expense', icon: ShoppingCart },
-  { id: 'trx3', date: '2024-07-26', description: 'Exxon Mobil', category: 'Gas', amount: -45.67, type: 'expense', icon: ShoppingCart },
-  { id: 'trx4', date: '2024-07-25', description: 'Netflix Subscription', category: 'Bills', amount: -15.49, type: 'expense', icon: ReceiptText },
-  { id: 'trx5', date: '2024-07-24', description: 'Apple Store', category: 'Shopping', amount: -999.00, type: 'expense', icon: ShoppingCart },
-  { id: 'trx6', date: '2024-07-23', description: 'Freelance Project', category: 'Income', amount: 750.00, type: 'income', icon: Banknote },
-  { id: 'trx7', date: '2024-07-22', description: 'Rent', category: 'Bills', amount: -2200.00, type: 'expense', icon: ReceiptText },
+export const mockCategories: Category[] = [
+  { id: '1', name: 'Groceries', budget: 500, spent: 250.75, icon: ShoppingCart },
+  { id: '2', name: 'Entertainment', budget: 150, spent: 95.50, icon: Film },
+  { id: '3', name: 'Rent', budget: 1200, spent: 1200, icon: Home },
+  { id: '4', name: 'Food', budget: 300, spent: 210.20, icon: UtensilsCrossed },
+  { id: '5', name: 'Transport', budget: 100, spent: 60.00, icon: Car },
+  { id: '6', name: 'Shopping', budget: 200, spent: 180.00, icon: Shirt },
+  { id: '7', name: 'Health', budget: 100, spent: 30, icon: HeartPulse },
+  { id: '8', name: 'Education', budget: 100, spent: 50, icon: BookOpen },
 ];
 
-export const cashFlowData = [
-  { month: 'Jan', income: 4000, expenses: 2400 },
-  { month: 'Feb', income: 3000, expenses: 1398 },
-  { month: 'Mar', income: 5000, expenses: 3800 },
-  { month: 'Apr', income: 4780, expenses: 3908 },
-  { month: 'May', income: 5890, expenses: 4800 },
-  { month: 'Jun', income: 4390, expenses: 3800 },
-  { month: 'Jul', income: 5490, expenses: 4300 },
+export const mockAlerts: Alert[] = [
+  { id: '1', title: 'Overspending Warning', description: 'You are close to your budget limit for "Shopping".', date: '2024-07-21' },
+  { id: '2', title: 'Unusual Activity', description: 'A large transaction of ₹500 was detected in "Entertainment".', date: '2024-07-20' },
 ];
 
-export const spendingData = [
-    { category: 'Groceries', amount: 540 },
-    { category: 'Gas', amount: 210 },
-    { category: 'Bills', amount: 2450 },
-    { category: 'Shopping', amount: 1200 },
-    { category: 'Dining Out', amount: 350 },
-    { category: 'Health', amount: 150 },
+export const mockRecommendations: Recommendation[] = [
+  { id: '1', title: 'Reduce Entertainment Budget', description: 'Based on your income and trends, reduce your Entertainment budget by ₹50.' },
+  { id: '2', title: 'Optimize Grocery Spending', description: 'You can save up to 15% on groceries by shopping at different stores. Would you like me to find deals?' },
 ];
 
-export const getNetWorthData = () => {
-    const assets = accounts.filter(a => a.balance > 0).reduce((acc, curr) => acc + curr.balance, 0);
-    const liabilities = Math.abs(accounts.filter(a => a.balance < 0).reduce((acc, curr) => acc + curr.balance, 0));
-    const netWorth = assets - liabilities;
-    return { assets, liabilities, netWorth };
-}
-
-export const assetsLiabilitiesData = [
-    { name: 'Assets', value: getNetWorthData().assets, fill: 'var(--color-chart-1)' },
-    { name: 'Liabilities', value: getNetWorthData().liabilities, fill: 'var(--color-chart-2)' },
+export const mockPredictionData = [
+    { date: 'Jul 1', spending: 100 },
+    { date: 'Jul 5', spending: 250 },
+    { date: 'Jul 10', spending: 500 },
+    { date: 'Jul 15', spending: 900 },
+    { date: 'Jul 20', spending: 1400 },
+    { date: 'Jul 25', spending: 1800, predicted: true },
+    { date: 'Jul 31', spending: 2200, predicted: true },
 ];
-
-export const transactionHistoryForAI = `
-July 28, 2024: +$3500.00 (Paycheck)
-July 27, 2024: -$154.32 (Groceries at Trader Joe's)
-July 26, 2024: -$45.67 (Gas at Exxon Mobil)
-July 25, 2024: -$15.49 (Netflix Subscription)
-July 24, 2024: -$999.00 (Shopping at Apple Store)
-July 23, 2024: +$750.00 (Freelance Project)
-July 22, 2024: -$2200.00 (Rent payment)
-July 15, 2024: -$89.50 (Dinner at Italian restaurant)
-July 14, 2024: +$3500.00 (Paycheck)
-July 10, 2024: -$250.00 (Utilities Bill)
-July 5, 2024: -$55.00 (Internet Bill)
-July 1, 2024: -$120.00 (Car Insurance)
-`;
