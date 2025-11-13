@@ -18,7 +18,7 @@ export function Onboarding({ onFinish }: { onFinish: () => void }) {
         <div className="w-full max-w-2xl h-[80vh] bg-card border rounded-lg shadow-2xl flex flex-col">
             <div className="p-6 border-b">
                 <h2 className="text-2xl font-bold">Welcome to FinAI</h2>
-                <p className="text-muted-foreground">Let's set up your financial profile.</p>
+                <p className="text-muted-foreground">Let&apos;s set up your financial profile.</p>
             </div>
             <div className="flex-1 overflow-hidden">
                 <ChatInterface initialMessages={onboardingMessages} />

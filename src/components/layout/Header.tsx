@@ -9,8 +9,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { mockAlerts } from "@/lib/data";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 function getPageTitle(pathname: string) {
     if (pathname === "/") return "Dashboard";
@@ -66,6 +68,14 @@ export function Header() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <UserButton
+          appearance={{
+            elements: {
+              avatarBox: "h-9 w-9",
+            },
+          }}
+          afterSignOutUrl="/sign-in"
+        />
       </div>
     </header>
   );

@@ -10,7 +10,7 @@ function GreetingBanner() {
     return (
         <Card className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
             <CardHeader>
-                <CardTitle>Hi {mockUser.name}, I've analyzed your spending.</CardTitle>
+                <CardTitle>Hi {mockUser.name}, I&apos;ve analyzed your spending.</CardTitle>
                 <CardDescription className="text-primary-foreground/80">You might overspend this week — want help adjusting?</CardDescription>
             </CardHeader>
         </Card>

@@ -222,7 +222,7 @@ export default function SettingsPage() {
             <Lock /> Security
           </CardTitle>
           <CardDescription>
-            Manage your app's security and data.
+            Manage your app&apos;s security and data.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

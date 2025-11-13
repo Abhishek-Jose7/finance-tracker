@@ -67,7 +67,7 @@ export function PredictionChart() {
               <TrendingUp className="h-4 w-4" /> Your spending is trending upwards.
             </div>
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Based on your current trajectory, you're forecasted to spend ₹2,200 this month.
+              Based on your current trajectory, you&apos;re forecasted to spend ₹2,200 this month.
             </div>
           </div>
         </div>

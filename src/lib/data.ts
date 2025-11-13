@@ -17,14 +17,14 @@ export const mockTransactions: Transaction[] = [
 ];
 
 export const mockCategories: Category[] = [
-  { id: '1', name: 'Groceries', budget: 500, spent: 250.75, icon: ShoppingCart },
-  { id: '2', name: 'Entertainment', budget: 150, spent: 95.50, icon: Film },
-  { id: '3', name: 'Rent', budget: 1200, spent: 1200, icon: Home },
-  { id: '4', name: 'Food', budget: 300, spent: 210.20, icon: UtensilsCrossed },
-  { id: '5', name: 'Transport', budget: 100, spent: 60.00, icon: Car },
-  { id: '6', name: 'Shopping', budget: 200, spent: 180.00, icon: Shirt },
-  { id: '7', name: 'Health', budget: 100, spent: 30, icon: HeartPulse },
-  { id: '8', name: 'Education', budget: 100, spent: 50, icon: BookOpen },
+  { id: '1', name: 'Groceries', budget: 500, spent: 250.75, icon: ShoppingCart, color: '#10b981' },
+  { id: '2', name: 'Entertainment', budget: 150, spent: 95.50, icon: Film, color: '#8b5cf6' },
+  { id: '3', name: 'Rent', budget: 1200, spent: 1200, icon: Home, color: '#f59e0b' },
+  { id: '4', name: 'Food', budget: 300, spent: 210.20, icon: UtensilsCrossed, color: '#ef4444' },
+  { id: '5', name: 'Transport', budget: 100, spent: 60.00, icon: Car, color: '#3b82f6' },
+  { id: '6', name: 'Shopping', budget: 200, spent: 180.00, icon: Shirt, color: '#ec4899' },
+  { id: '7', name: 'Health', budget: 100, spent: 30, icon: HeartPulse, color: '#14b8a6' },
+  { id: '8', name: 'Education', budget: 100, spent: 50, icon: BookOpen, color: '#f97316' },
 ];
 
 export const mockAlerts: Alert[] = [

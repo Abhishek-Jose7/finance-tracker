@@ -12,6 +12,7 @@ export interface Transaction {
   category: string;
   date: string;
   type: 'income' | 'expense';
+  merchant?: string;
 }
 
 export interface Category {
@@ -20,6 +21,7 @@ export interface Category {
   budget: number;
   spent: number;
   icon: LucideIcon;
+  color: string;
 }
 
 export interface Alert {
