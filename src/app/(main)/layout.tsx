@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Header } from "@/components/layout/Header";
 import { FloatingAssistantButton } from "@/components/layout/FloatingAssistantButton";
 import { AppProvider, useAppContext } from "@/context/AppContext";
-import { ProfileOnboarding } from "@/components/onboarding/ProfileOnboarding";
+import { EnhancedProfileOnboarding } from "@/components/onboarding/EnhancedProfileOnboarding";
 import { useUser } from "@clerk/nextjs";
 
 function MainLayoutContent({ children }: { children: React.ReactNode }) {
@@ -14,7 +14,7 @@ function MainLayoutContent({ children }: { children: React.ReactNode }) {
 
   // Show onboarding if user is signed in but hasn't completed profile
   if (isSignedIn && !isLoading && userProfile && !userProfile.onboarding_completed) {
-    return <ProfileOnboarding />;
+    return <EnhancedProfileOnboarding />;
   }
 
   return (

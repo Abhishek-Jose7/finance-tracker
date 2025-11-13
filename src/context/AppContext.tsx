@@ -31,6 +31,7 @@ interface AppContextType {
   userProfile: UserProfile | null;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
   updateCategory: (categoryId: string, newValues: Partial<Category>) => Promise<void>;
+  refreshData: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -116,9 +117,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setCategories(transformedCategories);
       } catch (error) {
         console.error('Error loading user data:', error);
-        // Fallback to mock data on error
-        setTransactions(mockTransactions);
-        setCategories(mockCategories);
+        // Show empty state instead of mock data
+        setTransactions([]);
+        setCategories([]);
       } finally {
         setIsLoading(false);
       }
@@ -205,7 +206,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
     } catch (error) {
       console.error('Error updating category:', error);
-      throw error;
+      // Revert local state on error
+      setCategories(prev =>
+        prev.map(cat => (cat.id === categoryId ? cat : cat))
+      );
+    }
+  };
+
+  const refreshData = async () => {
+    if (!isSignedIn) return;
+
+    try {
+      const [dbTransactions, dbCategories] = await Promise.all([
+        getUserTransactions(),
+        getUserCategories(),
+      ]);
+
+      const transformedTransactions: Transaction[] = dbTransactions.map(t => ({
+        id: t.id,
+        amount: t.amount,
+        category: t.category,
+        description: t.description,
+        date: t.date,
+        type: t.type,
+        merchant: t.merchant || undefined,
+      }));
+
+      const transformedCategories: Category[] = dbCategories.map(c => ({
+        id: c.id,
+        name: c.name,
+        budget: c.budget_limit,
+        spent: 0,
+        color: c.color,
+        icon: iconMap[c.icon] || ShoppingCart,
+      }));
+
+      setTransactions(transformedTransactions);
+      setCategories(transformedCategories);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
     }
   };
 
@@ -215,6 +254,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     userProfile,
     addTransaction,
     updateCategory,
+    refreshData,
     isLoading,
   };
 

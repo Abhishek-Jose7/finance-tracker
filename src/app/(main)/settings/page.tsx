@@ -33,10 +33,14 @@ import {
   Lock,
   HelpCircle,
 } from "lucide-react";
+import { BudgetManagement } from "@/components/settings/BudgetManagement";
 
 export default function SettingsPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-8">
+      {/* Budget Management Section */}
+      <BudgetManagement />
+
       {/* Account Section */}
       <Card>
         <CardHeader>

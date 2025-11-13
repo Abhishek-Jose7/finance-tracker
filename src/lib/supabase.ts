@@ -68,6 +68,10 @@ export interface Database {
           date: string;
           type: 'income' | 'expense';
           merchant: string | null;
+          ml_category: string | null;
+          ml_confidence: number | null;
+          source: string;
+          uploaded_file_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -80,6 +84,10 @@ export interface Database {
           date: string;
           type: 'income' | 'expense';
           merchant?: string | null;
+          ml_category?: string | null;
+          ml_confidence?: number | null;
+          source?: string;
+          uploaded_file_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -92,7 +100,52 @@ export interface Database {
           date?: string;
           type?: 'income' | 'expense';
           merchant?: string | null;
+          ml_category?: string | null;
+          ml_confidence?: number | null;
+          source?: string;
+          uploaded_file_id?: string | null;
           updated_at?: string;
+        };
+      };
+      uploaded_files: {
+        Row: {
+          id: string;
+          user_id: string;
+          file_name: string;
+          file_type: string;
+          file_size: number;
+          file_url: string | null;
+          processing_status: string;
+          transactions_extracted: number;
+          error_message: string | null;
+          uploaded_at: string;
+          processed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          file_name: string;
+          file_type: string;
+          file_size: number;
+          file_url?: string | null;
+          processing_status?: string;
+          transactions_extracted?: number;
+          error_message?: string | null;
+          uploaded_at?: string;
+          processed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          file_name?: string;
+          file_type?: string;
+          file_size?: number;
+          file_url?: string | null;
+          processing_status?: string;
+          transactions_extracted?: number;
+          error_message?: string | null;
+          uploaded_at?: string;
+          processed_at?: string | null;
         };
       };
       categories: {
@@ -103,6 +156,8 @@ export interface Database {
           budget_limit: number;
           color: string;
           icon: string;
+          is_custom: boolean;
+          created_by_user: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -113,6 +168,8 @@ export interface Database {
           budget_limit: number;
           color: string;
           icon: string;
+          is_custom?: boolean;
+          created_by_user?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -123,6 +180,8 @@ export interface Database {
           budget_limit?: number;
           color?: string;
           icon?: string;
+          is_custom?: boolean;
+          created_by_user?: boolean;
           updated_at?: string;
         };
       };
