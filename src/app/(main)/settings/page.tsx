@@ -259,6 +259,22 @@ export default function SettingsPage() {
           <Button variant="outline">FAQs</Button>
         </CardContent>
       </Card>
+
+      {/* Database Test Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database /> Database Connection
+          </CardTitle>
+          <CardDescription>Test your Supabase database connection</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" onClick={() => window.location.href = '/settings/test-db'}>
+            <Database className="mr-2 h-4 w-4" />
+            Test Database Connection
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

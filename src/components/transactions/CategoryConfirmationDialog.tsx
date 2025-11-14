@@ -101,7 +101,7 @@ export function CategoryConfirmationDialog({
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Amount:</span>
               <span className="text-lg font-semibold">
-                ${transaction.amount.toFixed(2)}
+                ₹{transaction.amount.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between items-center">

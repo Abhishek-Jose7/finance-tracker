@@ -177,14 +177,14 @@ export async function createDefaultCategories() {
   }
 
   const defaultCategories = [
-    { name: 'Groceries', budget_limit: 600, color: '#10b981', icon: 'ShoppingCart' },
-    { name: 'Entertainment', budget_limit: 300, color: '#8b5cf6', icon: 'Film' },
-    { name: 'Rent', budget_limit: 1500, color: '#f59e0b', icon: 'Home' },
-    { name: 'Dining', budget_limit: 400, color: '#ef4444', icon: 'UtensilsCrossed' },
-    { name: 'Transportation', budget_limit: 200, color: '#3b82f6', icon: 'Car' },
-    { name: 'Shopping', budget_limit: 300, color: '#ec4899', icon: 'Shirt' },
-    { name: 'Healthcare', budget_limit: 250, color: '#14b8a6', icon: 'HeartPulse' },
-    { name: 'Education', budget_limit: 200, color: '#f97316', icon: 'BookOpen' },
+    { name: 'Groceries', budget_limit: 6000, color: '#10b981', icon: 'ShoppingCart' },
+    { name: 'Entertainment', budget_limit: 3000, color: '#8b5cf6', icon: 'Film' },
+    { name: 'Rent', budget_limit: 15000, color: '#f59e0b', icon: 'Home' },
+    { name: 'Dining', budget_limit: 4000, color: '#ef4444', icon: 'UtensilsCrossed' },
+    { name: 'Transportation', budget_limit: 2000, color: '#3b82f6', icon: 'Car' },
+    { name: 'Shopping', budget_limit: 3000, color: '#ec4899', icon: 'Shirt' },
+    { name: 'Healthcare', budget_limit: 2500, color: '#14b8a6', icon: 'HeartPulse' },
+    { name: 'Education', budget_limit: 2000, color: '#f97316', icon: 'BookOpen' },
   ];
 
   const { error } = await supabase

@@ -23,24 +23,24 @@ import { createUserBudgets } from "@/lib/file-processing";
 import { cn } from "@/lib/utils";
 
 const CURRENCIES = [
-  { value: "USD", label: "USD - US Dollar" },
-  { value: "EUR", label: "EUR - Euro" },
-  { value: "GBP", label: "GBP - British Pound" },
-  { value: "JPY", label: "JPY - Japanese Yen" },
-  { value: "AUD", label: "AUD - Australian Dollar" },
-  { value: "CAD", label: "CAD - Canadian Dollar" },
-  { value: "INR", label: "INR - Indian Rupee" },
+  { value: "INR", label: "₹ (INR)" },
+  { value: "USD", label: "$ (USD)" },
+  { value: "EUR", label: "€ (EUR)" },
+  { value: "GBP", label: "£ (GBP)" },
+  { value: "JPY", label: "¥ (JPY)" },
+  { value: "AUD", label: "A$ (AUD)" },
+  { value: "CAD", label: "C$ (CAD)" },
 ];
 
 const DEFAULT_BUDGET_CATEGORIES = [
-  { name: "Groceries", default: 500, icon: "ShoppingCart", color: "#10b981", Icon: ShoppingCart },
-  { name: "Entertainment", default: 300, icon: "Film", color: "#8b5cf6", Icon: Film },
-  { name: "Rent", default: 1500, icon: "Home", color: "#f59e0b", Icon: Home },
-  { name: "Dining", default: 400, icon: "UtensilsCrossed", color: "#ef4444", Icon: UtensilsCrossed },
-  { name: "Transportation", default: 200, icon: "Car", color: "#3b82f6", Icon: Car },
-  { name: "Shopping", default: 300, icon: "Shirt", color: "#ec4899", Icon: Shirt },
-  { name: "Healthcare", default: 250, icon: "HeartPulse", color: "#14b8a6", Icon: HeartPulse },
-  { name: "Education", default: 200, icon: "BookOpen", color: "#f97316", Icon: BookOpen },
+  { name: "Groceries", default: 5000, icon: "ShoppingCart", color: "#10b981", Icon: ShoppingCart },
+  { name: "Entertainment", default: 3000, icon: "Film", color: "#8b5cf6", Icon: Film },
+  { name: "Rent", default: 15000, icon: "Home", color: "#f59e0b", Icon: Home },
+  { name: "Dining", default: 4000, icon: "UtensilsCrossed", color: "#ef4444", Icon: UtensilsCrossed },
+  { name: "Transportation", default: 2000, icon: "Car", color: "#3b82f6", Icon: Car },
+  { name: "Shopping", default: 3000, icon: "Shirt", color: "#ec4899", Icon: Shirt },
+  { name: "Healthcare", default: 2500, icon: "HeartPulse", color: "#14b8a6", Icon: HeartPulse },
+  { name: "Education", default: 2000, icon: "BookOpen", color: "#f97316", Icon: BookOpen },
 ];
 
 export function EnhancedProfileOnboarding() {
@@ -50,7 +50,7 @@ export function EnhancedProfileOnboarding() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     monthly_income: "",
-    currency: "USD",
+    currency: "INR",
     salary_day: "",
     occupation: "",
     phone: "",

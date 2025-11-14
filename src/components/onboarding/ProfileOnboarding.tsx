@@ -22,13 +22,13 @@ import { completeUserOnboarding } from "@/lib/db-actions";
 import { cn } from "@/lib/utils";
 
 const CURRENCIES = [
-  { value: "USD", label: "USD - US Dollar" },
-  { value: "EUR", label: "EUR - Euro" },
-  { value: "GBP", label: "GBP - British Pound" },
-  { value: "JPY", label: "JPY - Japanese Yen" },
-  { value: "AUD", label: "AUD - Australian Dollar" },
-  { value: "CAD", label: "CAD - Canadian Dollar" },
-  { value: "INR", label: "INR - Indian Rupee" },
+  { value: "INR", label: "₹ (INR)" },
+  { value: "USD", label: "$ (USD)" },
+  { value: "EUR", label: "€ (EUR)" },
+  { value: "GBP", label: "£ (GBP)" },
+  { value: "JPY", label: "¥ (JPY)" },
+  { value: "AUD", label: "A$ (AUD)" },
+  { value: "CAD", label: "C$ (CAD)" },
 ];
 
 export function ProfileOnboarding() {
@@ -38,7 +38,7 @@ export function ProfileOnboarding() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     monthly_income: "",
-    currency: "USD",
+    currency: "INR",
     salary_day: "",
     occupation: "",
     phone: "",
