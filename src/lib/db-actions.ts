@@ -1,5 +1,7 @@
 'use server';
 
+export const runtime = 'nodejs';
+
 import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
