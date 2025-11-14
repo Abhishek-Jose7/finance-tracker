@@ -7,6 +7,52 @@ The app now supports dual AI providers with automatic fallback:
 
 If Gemini fails or is unavailable, the system automatically falls back to Grok.
 
+## Common Issues & Solutions
+
+### Issue: "I apologize, but I'm currently experiencing technical difficulties"
+
+**Why this happens:**
+1. **Missing Flow Import**: The `general-financial-assistant` flow wasn't imported in `src/ai/dev.ts` (NOW FIXED ✅)
+2. **API Key Not Set**: Neither GEMINI_API_KEY nor GROK_API_KEY is configured in environment variables
+3. **Genkit Initialization Failed**: The AI flow framework couldn't initialize properly
+4. **Network/API Errors**: The API provider is temporarily unavailable or rate-limited
+5. **Invalid API Key**: The key in environment variables is incorrect or expired
+
+**Solutions Applied:**
+- ✅ Added `general-financial-assistant.ts` import to `dev.ts`
+- ✅ Enhanced error logging to show exact failure reason
+- ✅ Error messages now display in chat with specific details
+- ✅ Console logs show environment check (API keys presence/length)
+- ✅ Fallback to Grok if Gemini fails
+
+**How to diagnose:**
+1. Open browser DevTools Console (F12)
+2. Look for log messages:
+   - `🤖 Calling generalFinancialAssistant with input`
+   - `Environment check: { hasGemini: true/false, hasGrok: true/false }`
+   - `✅ Gemini response successful` OR `⚠️ Gemini failed with error:`
+3. Check the error object for specific failure reason
+
+### Issue: Chat history only shows user messages, not AI responses
+
+**Why this happened:**
+- Chat messages were being saved but there was no verification logging
+- If save failed silently, the message wouldn't persist
+- The getChatHistory function was working, but saves might have failed
+
+**Solutions Applied:**
+- ✅ Added console logging for every message save attempt
+- ✅ Log format: `💾 Saving user/assistant message for user [id]`
+- ✅ Verification: `✅ user/assistant message saved with id: [uuid]`
+- ✅ Error handling: Shows specific error if save fails
+- ✅ Both user AND assistant messages are explicitly saved to `chat_messages` table
+
+**How to verify:**
+1. Send a message in the assistant
+2. Check console for: `💾 Saving user message...` then `💾 Saving assistant message...`
+3. Verify both show: `✅ message saved with id: [uuid]`
+4. Refresh page - both messages should persist
+
 ## Vercel Environment Variable Setup
 
 ### Step 1: Go to Vercel Dashboard
