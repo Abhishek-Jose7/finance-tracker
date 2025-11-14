@@ -74,7 +74,14 @@ export function BudgetManagement() {
           <div>
             <div className="text-sm text-slate-400">Total Monthly Budget</div>
             <div className="text-2xl font-bold text-primary">
-              {userProfile?.currency === "INR" ? "₹" : userProfile?.currency === "EUR" ? "€" : userProfile?.currency === "GBP" ? "£" : "$"}{totalBudget.toFixed(0)}
+              {(() => {
+                const curr = userProfile?.currency || "INR";
+                if (curr === "INR") return "₹";
+                if (curr === "EUR") return "€";
+                if (curr === "GBP") return "£";
+                if (curr === "USD") return "$";
+                return "₹";
+              })()}{totalBudget.toFixed(0)}
             </div>
           </div>
           {monthlyIncome > 0 && (

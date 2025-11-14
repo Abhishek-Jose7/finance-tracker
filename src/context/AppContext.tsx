@@ -70,26 +70,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      console.log('Loading user data for:', user?.id);
+
       try {
         // Sync user to database and get user profile
         const dbUser = await syncUserToDatabase();
         
-        if (dbUser) {
-          setUserProfile({
-            id: dbUser.id,
-            name: dbUser.name || null,
-            email: dbUser.email || null,
-            monthly_income: dbUser.monthly_income,
-            currency: dbUser.currency,
-            salary_day: dbUser.salary_day,
-            occupation: dbUser.occupation,
-            onboarding_completed: dbUser.onboarding_completed,
-            phone: dbUser.phone,
-            date_of_birth: dbUser.date_of_birth,
-            preferences: (dbUser as any).preferences || {},
-            chat_context: (dbUser as any).chat_context || null,
-          });
+        if (!dbUser) {
+          console.error('Failed to sync user to database');
+          setIsLoading(false);
+          return;
         }
+
+        console.log('User synced:', dbUser);
+        
+        setUserProfile({
+          id: dbUser.id,
+          name: dbUser.name || null,
+          email: dbUser.email || null,
+          monthly_income: dbUser.monthly_income,
+          currency: dbUser.currency || 'INR',
+          salary_day: dbUser.salary_day,
+          occupation: dbUser.occupation,
+          onboarding_completed: dbUser.onboarding_completed,
+          phone: dbUser.phone,
+          date_of_birth: dbUser.date_of_birth,
+          preferences: (dbUser as any).preferences || {},
+          chat_context: (dbUser as any).chat_context || null,
+        });
         
         // Create default categories if needed
         await createDefaultCategories();
@@ -99,6 +107,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           getUserTransactions(),
           getUserCategories(),
         ]);
+
+        console.log('Fetched data - Transactions:', dbTransactions.length, 'Categories:', dbCategories.length);
 
         // Transform database transactions to app format
         const transformedTransactions: Transaction[] = dbTransactions.map(t => ({

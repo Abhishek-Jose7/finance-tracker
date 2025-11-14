@@ -7,16 +7,24 @@ export async function syncUserToDatabase() {
   const user = await currentUser();
   
   if (!user) {
+    console.error('No Clerk user found');
     return null;
   }
 
-  const { data: existingUser } = await supabase
+  console.log('Syncing user to database:', user.id);
+
+  const { data: existingUser, error: fetchError } = await supabase
     .from('users')
     .select('*')
     .eq('clerk_user_id', user.id)
     .single();
 
+  if (fetchError && fetchError.code !== 'PGRST116') {
+    console.error('Error fetching user:', fetchError);
+  }
+
   if (!existingUser) {
+    console.log('Creating new user in database');
     const { data: newUser, error } = await supabase
       .from('users')
       .insert({
@@ -24,6 +32,8 @@ export async function syncUserToDatabase() {
         email: user.emailAddresses[0]?.emailAddress || '',
         name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User',
         avatar_url: user.imageUrl,
+        currency: 'INR',
+        onboarding_completed: false,
       })
       .select()
       .single();
@@ -33,9 +43,11 @@ export async function syncUserToDatabase() {
       return null;
     }
 
+    console.log('User created successfully:', newUser.id);
     return newUser;
   }
 
+  console.log('User already exists:', existingUser.id);
   return existingUser;
 }
 
