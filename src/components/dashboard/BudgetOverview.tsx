@@ -13,18 +13,18 @@ export function BudgetOverview() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Monthly Budget Overview</CardTitle>
-        <CardDescription>Your spending summary for this month.</CardDescription>
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-lg sm:text-xl">Monthly Budget Overview</CardTitle>
+        <CardDescription className="text-sm">Your spending summary for this month.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6">
         <div className="space-y-4">
-          <div className="flex justify-between items-baseline">
-            <span className="text-2xl font-bold text-primary">₹{remaining.toLocaleString()}</span>
-            <span className="text-sm text-muted-foreground">Remaining of ₹{totalBudget.toLocaleString()}</span>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 sm:gap-0">
+            <span className="text-xl sm:text-2xl font-bold text-primary">₹{remaining.toLocaleString()}</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">Remaining of ₹{totalBudget.toLocaleString()}</span>
           </div>
-          <Progress value={spentPercentage} />
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <Progress value={spentPercentage} className="h-2 sm:h-3" />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm">
             <div>
               <p className="text-muted-foreground">Total Budget</p>
               <p className="font-semibold">₹{totalBudget.toLocaleString()}</p>

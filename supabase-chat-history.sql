@@ -65,3 +65,10 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS preferences JSONB DEFAULT '{}'
 
 COMMENT ON TABLE public.chat_messages IS 'Stores chat history between users and AI assistant';
 COMMENT ON TABLE public.user_preferences IS 'Stores AI-learned preferences and context about users';
+
+-- Add fields to transactions table for ML confidence tracking
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS needs_user_confirmation BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS suggested_categories JSONB DEFAULT '[]'::jsonb;
+
+COMMENT ON COLUMN public.transactions.needs_user_confirmation IS 'True when ML confidence is low and user needs to manually select category';
+COMMENT ON COLUMN public.transactions.suggested_categories IS 'Array of suggested categories with confidence scores from ML model';

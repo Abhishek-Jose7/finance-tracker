@@ -32,11 +32,11 @@ function MainLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col flex-1 w-full min-w-0">
           <Header />
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto w-full">
             {children}
           </main>
         </div>

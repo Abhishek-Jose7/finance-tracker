@@ -59,14 +59,12 @@ export async function processUploadedFile(fileData: {
     return { error: "Unauthorized" };
   }
 
-  const { data: dbUser } = await supabase
-    .from("users")
-    .select("id")
-    .eq("clerk_user_id", user.id)
-    .single();
+  // Sync user to database first to ensure they exist
+  const { syncUserToDatabase } = await import("@/lib/db-actions");
+  const dbUser = await syncUserToDatabase();
 
   if (!dbUser) {
-    return { error: "User not found" };
+    return { error: "User not found. Please try refreshing the page." };
   }
 
   // Create uploaded_files record
@@ -264,6 +262,7 @@ function determineType(transaction: any, amount: number): "income" | "expense" {
 async function categorizeTransactions(transactions: any[]) {
   // Use HuggingFace Inference API for categorization
   const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
+  const CONFIDENCE_THRESHOLD = 50; // Ask user if confidence < 50%
   
   if (!HUGGINGFACE_API_KEY) {
     // Fallback to rule-based categorization
@@ -272,22 +271,29 @@ async function categorizeTransactions(transactions: any[]) {
       category: categorizeByRules(t.description, t.merchant),
       ml_category: null,
       ml_confidence: null,
+      needs_user_confirmation: false,
+      suggested_categories: [],
     }));
   }
 
   try {
     const categorized = await Promise.all(
       transactions.map(async (t) => {
-        const category = await categorizeSingle(
+        const result = await categorizeSingle(
           t.description + " " + (t.merchant || ""),
           HUGGINGFACE_API_KEY
         );
 
+        // Check if confidence is below threshold
+        const needsConfirmation = result.confidence !== null && result.confidence < CONFIDENCE_THRESHOLD;
+
         return {
           ...t,
-          category: category.category,
-          ml_category: category.category,
-          ml_confidence: category.confidence,
+          category: needsConfirmation ? "Uncategorized" : result.category,
+          ml_category: result.category,
+          ml_confidence: result.confidence,
+          needs_user_confirmation: needsConfirmation,
+          suggested_categories: needsConfirmation ? result.suggestions || [result.category] : [],
         };
       })
     );
@@ -301,6 +307,8 @@ async function categorizeTransactions(transactions: any[]) {
       category: categorizeByRules(t.description, t.merchant),
       ml_category: null,
       ml_confidence: null,
+      needs_user_confirmation: false,
+      suggested_categories: [],
     }));
   }
 }
@@ -343,11 +351,13 @@ async function categorizeSingle(text: string, apiKey: string) {
     return {
       category: result.labels[0],
       confidence: Math.round(result.scores[0] * 100),
+      suggestions: result.labels.slice(0, 3), // Top 3 suggestions
     };
   } catch (error) {
     return {
       category: categorizeByRules(text, ""),
       confidence: null,
+      suggestions: [],
     };
   }
 }

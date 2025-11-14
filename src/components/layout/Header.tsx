@@ -28,19 +28,22 @@ export function Header() {
   const title = getPageTitle(pathname);
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
+    <header className="sticky top-0 z-10 flex h-16 items-center gap-2 sm:gap-4 border-b bg-background/80 px-3 sm:px-4 backdrop-blur-sm md:px-6">
       <div className="md:hidden">
         <SidebarTrigger />
       </div>
 
-      <div className="flex-1">
-        <h1 className="text-lg font-semibold md:text-xl">{title}</h1>
+      <div className="flex-1 min-w-0">
+        <h1 className="text-base sm:text-lg font-semibold md:text-xl truncate">{title}</h1>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm">
+      <div className="flex items-center gap-1 sm:gap-2">
+        <Button variant="outline" size="sm" className="hidden sm:flex">
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Expense
+        </Button>
+        <Button variant="outline" size="icon" className="sm:hidden">
+          <PlusCircle className="h-4 w-4" />
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

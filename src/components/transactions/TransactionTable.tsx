@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Bot, Repeat, Upload, Search, Flag, X } from "lucide-react";
+import { MoreHorizontal, Bot, Repeat, Upload, Search, Flag, X, AlertCircle } from "lucide-react";
 import { useAppContext } from "@/context/AppContext";
 import type { Transaction } from "@/lib/types";
 import { useState, useMemo, useRef } from "react";
@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { explainTransactionDetails } from "@/ai/flows/explain-transaction-details";
+import { CategoryConfirmationDialog } from "./CategoryConfirmationDialog";
 
 export function TransactionTable() {
   const { transactions, categories, addTransaction } = useAppContext();
@@ -38,6 +39,8 @@ export function TransactionTable() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isExplainLoading, setIsExplainLoading] = useState(false);
   const [explanation, setExplanation] = useState<string | null>(null);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [transactionToRecategorize, setTransactionToRecategorize] = useState<any>(null);
 
   const filteredTransactions = useMemo(() => {
     return transactions
@@ -191,11 +194,30 @@ export function TransactionTable() {
             <TableBody>
                 {filteredTransactions.map((transaction) => (
                 <TableRow key={transaction.id} onClick={() => handleRowClick(transaction)} className="cursor-pointer">
-                    <TableCell className="font-medium">{transaction.description}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {transaction.description}
+                        {(transaction as any).needs_user_confirmation && (
+                          <Badge variant="destructive" className="flex items-center gap-1 text-xs">
+                            <AlertCircle className="h-3 w-3" />
+                            Needs Review
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
-                        <Badge variant="outline" className="flex items-center gap-2 w-fit">
+                        <Badge 
+                          variant={(transaction as any).needs_user_confirmation ? "secondary" : "outline"} 
+                          className="flex items-center gap-2 w-fit cursor-pointer hover:bg-accent"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTransactionToRecategorize(transaction);
+                            setCategoryDialogOpen(true);
+                          }}
+                        >
                             {getCategoryIcon(transaction.category)}
                             {transaction.category}
+                            {(transaction as any).needs_user_confirmation && <AlertCircle className="h-3 w-3" />}
                         </Badge>
                     </TableCell>
                     <TableCell className={`text-right font-semibold ${transaction.type === 'income' ? 'text-green-500' : ''}`}>
@@ -214,7 +236,11 @@ export function TransactionTable() {
                             <Bot className="mr-2 h-4 w-4" />
                             View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setTransactionToRecategorize(transaction);
+                            setCategoryDialogOpen(true);
+                        }}>
                             <Repeat className="mr-2 h-4 w-4" />
                             Re-categorize
                         </DropdownMenuItem>
@@ -273,6 +299,20 @@ export function TransactionTable() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+        )}
+
+        {transactionToRecategorize && (
+          <CategoryConfirmationDialog
+            open={categoryDialogOpen}
+            onOpenChange={setCategoryDialogOpen}
+            transaction={{
+              id: transactionToRecategorize.id,
+              description: transactionToRecategorize.description,
+              amount: transactionToRecategorize.amount,
+              merchant: transactionToRecategorize.merchant || null,
+              suggested_categories: (transactionToRecategorize as any).suggested_categories || [],
+            }}
+          />
         )}
     </div>
   );

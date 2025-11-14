@@ -8,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
 import {
   Home,
@@ -19,9 +18,6 @@ import {
   Settings,
   Bot,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { mockUser } from "@/lib/data";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutGrid },
@@ -33,7 +29,6 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar');
 
   return (
     <Sidebar
@@ -65,24 +60,7 @@ export function AppSidebar() {
           </SidebarMenuItem>
         ))}
       </SidebarMenu>
-      <SidebarFooter className="p-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <div className="flex items-center gap-3 p-2 rounded-md">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={userAvatar?.imageUrl} alt={mockUser.name} data-ai-hint={userAvatar?.imageHint} />
-                <AvatarFallback>{mockUser.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-semibold">{mockUser.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  View profile
-                </span>
-              </div>
-            </div>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+      {/* Profile removed - using header UserButton instead */}
     </Sidebar>
   );
 }

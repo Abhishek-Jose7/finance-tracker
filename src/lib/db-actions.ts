@@ -201,6 +201,37 @@ export async function createDefaultCategories() {
   }
 }
 
+export async function updateTransactionCategory(transactionId: string, category: string) {
+  const user = await currentUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: dbUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('clerk_user_id', user.id)
+    .single();
+
+  if (!dbUser) throw new Error('User not found in database');
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .update({
+      category,
+      needs_user_confirmation: false,
+    })
+    .eq('id', transactionId)
+    .eq('user_id', dbUser.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating transaction category:', error);
+    throw error;
+  }
+
+  return data;
+}
+
 export async function completeUserOnboarding(profileData: {
   monthly_income?: number;
   currency?: string;

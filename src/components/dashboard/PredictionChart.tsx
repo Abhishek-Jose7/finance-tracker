@@ -32,12 +32,12 @@ const chartConfig = {
 export function PredictionChart() {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Predicted Month-End Spending</CardTitle>
-        <CardDescription>An AI forecast of your spending for the rest of the month.</CardDescription>
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-lg sm:text-xl">Predicted Month-End Spending</CardTitle>
+        <CardDescription className="text-sm">An AI forecast of your spending for the rest of the month.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-64 w-full">
+      <CardContent className="p-4 sm:p-6">
+        <ChartContainer config={chartConfig} className="h-48 sm:h-64 w-full">
             <ComposedChart data={mockPredictionData}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
@@ -60,11 +60,11 @@ export function PredictionChart() {
             </ComposedChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
+      <CardFooter className="p-4 sm:p-6">
+        <div className="flex w-full items-start gap-2 text-xs sm:text-sm">
           <div className="grid gap-2">
             <div className="flex items-center gap-2 font-medium leading-none">
-              <TrendingUp className="h-4 w-4" /> Your spending is trending upwards.
+              <TrendingUp className="h-4 w-4 flex-shrink-0" /> Your spending is trending upwards.
             </div>
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
               Based on your current trajectory, you&apos;re forecasted to spend ₹2,200 this month.

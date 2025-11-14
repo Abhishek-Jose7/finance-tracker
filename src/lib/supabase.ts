@@ -72,6 +72,8 @@ export interface Database {
           ml_confidence: number | null;
           source: string;
           uploaded_file_id: string | null;
+          needs_user_confirmation: boolean;
+          suggested_categories: any[];
           created_at: string;
           updated_at: string;
         };
@@ -88,6 +90,8 @@ export interface Database {
           ml_confidence?: number | null;
           source?: string;
           uploaded_file_id?: string | null;
+          needs_user_confirmation?: boolean;
+          suggested_categories?: any[];
           created_at?: string;
           updated_at?: string;
         };
@@ -104,6 +108,8 @@ export interface Database {
           ml_confidence?: number | null;
           source?: string;
           uploaded_file_id?: string | null;
+          needs_user_confirmation?: boolean;
+          suggested_categories?: any[];
           updated_at?: string;
         };
       };

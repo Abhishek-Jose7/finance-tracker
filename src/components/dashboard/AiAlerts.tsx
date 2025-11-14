@@ -74,32 +74,32 @@ export function AiAlerts() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">AI Alerts</h2>
-      <div className="space-y-4">
+      <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">AI Alerts</h2>
+      <div className="space-y-3 sm:space-y-4">
         {alerts.map((alert) => (
           <Alert 
             key={alert.id} 
             variant={alert.type === 'danger' || alert.type === 'warning' ? "destructive" : "default"}
-            className={alert.type === 'info' ? 'border-blue-500 bg-blue-500/10' : ''}
+            className={`${alert.type === 'info' ? 'border-blue-500 bg-blue-500/10' : ''} p-3 sm:p-4`}
           >
             {alert.type === 'danger' || alert.type === 'warning' ? (
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
             ) : alert.type === 'info' ? (
-              <TrendingUp className="h-4 w-4 text-blue-500" />
+              <TrendingUp className="h-4 w-4 text-blue-500 flex-shrink-0" />
             ) : (
-              <Info className="h-4 w-4" />
+              <Info className="h-4 w-4 flex-shrink-0" />
             )}
-            <AlertTitle>{alert.title}</AlertTitle>
-            <AlertDescription>
+            <AlertTitle className="text-sm sm:text-base">{alert.title}</AlertTitle>
+            <AlertDescription className="text-xs sm:text-sm">
               {alert.description}
             </AlertDescription>
           </Alert>
         ))}
         {alerts.length === 0 && (
-          <Alert className="border-green-500 bg-green-500/10">
-            <Info className="h-4 w-4 text-green-500" />
-            <AlertTitle>All Clear!</AlertTitle>
-            <AlertDescription className="text-green-200">
+          <Alert className="border-green-500 bg-green-500/10 p-3 sm:p-4">
+            <Info className="h-4 w-4 text-green-500 flex-shrink-0" />
+            <AlertTitle className="text-sm sm:text-base">All Clear!</AlertTitle>
+            <AlertDescription className="text-green-200 text-xs sm:text-sm">
               No new alerts at the moment. Your budget is on track. Keep up the good work!
             </AlertDescription>
           </Alert>
