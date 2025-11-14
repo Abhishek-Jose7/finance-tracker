@@ -14,12 +14,6 @@ export async function syncUserToDatabase() {
 
     console.log('🔄 Syncing user to database:', user.id, user.emailAddresses[0]?.emailAddress);
 
-    // Check if supabaseAdmin is properly configured
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('❌ CRITICAL: SUPABASE_SERVICE_ROLE_KEY is not set in environment variables!');
-      return null;
-    }
-
     // Use admin client to bypass RLS for user creation
     const { data: existingUser, error: fetchError } = await supabaseAdmin
       .from('users')
@@ -29,6 +23,12 @@ export async function syncUserToDatabase() {
 
     if (fetchError && fetchError.code !== 'PGRST116') {
       console.error('❌ Error fetching user:', fetchError);
+      console.error('Error details:', {
+        message: fetchError.message,
+        details: fetchError.details,
+        hint: fetchError.hint,
+        code: fetchError.code
+      });
     }
 
     if (!existingUser) {
