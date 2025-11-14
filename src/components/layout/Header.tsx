@@ -52,6 +52,8 @@ export function Header() {
   });
 
   const handleAddExpense = async () => {
+    console.log("Categories available:", categories.length, categories);
+    
     if (!formData.description || !formData.amount || !formData.category) {
       alert("Please fill in all required fields");
       return;
@@ -184,12 +186,16 @@ export function Header() {
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.name}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
+                <SelectContent className="max-h-[300px] z-[9999]">
+                  {categories.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground">No categories available. Please complete onboarding first.</div>
+                  ) : (
+                    categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
