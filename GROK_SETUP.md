@@ -17,6 +17,7 @@ If Gemini fails or is unavailable, the system automatically falls back to Grok.
 3. **Genkit Initialization Failed**: The AI flow framework couldn't initialize properly
 4. **Network/API Errors**: The API provider is temporarily unavailable or rate-limited
 5. **Invalid API Key**: The key in environment variables is incorrect or expired
+6. **Grok API 400 Error**: Incorrect request format to Grok API (NOW FIXED ✅)
 
 **Solutions Applied:**
 - ✅ Added `general-financial-assistant.ts` import to `dev.ts`
@@ -24,6 +25,11 @@ If Gemini fails or is unavailable, the system automatically falls back to Grok.
 - ✅ Error messages now display in chat with specific details
 - ✅ Console logs show environment check (API keys presence/length)
 - ✅ Fallback to Grok if Gemini fails
+- ✅ Fixed Grok API request format:
+  - Added system message for proper context
+  - Included conversation history in messages array
+  - Added `max_tokens` parameter
+  - Improved error logging with full response text
 
 **How to diagnose:**
 1. Open browser DevTools Console (F12)
@@ -31,7 +37,12 @@ If Gemini fails or is unavailable, the system automatically falls back to Grok.
    - `🤖 Calling generalFinancialAssistant with input`
    - `Environment check: { hasGemini: true/false, hasGrok: true/false }`
    - `✅ Gemini response successful` OR `⚠️ Gemini failed with error:`
+   - If falling back to Grok: `🔧 Building Grok API request...`
+   - `📤 Grok API request:` - shows request details
+   - `📥 Grok API response status:` - shows HTTP status
+   - `✅ Grok API response received` OR `❌ Grok API error response:`
 3. Check the error object for specific failure reason
+4. If you see `Grok API error: 400`, the request format was wrong (now fixed)
 
 ### Issue: Chat history only shows user messages, not AI responses
 
