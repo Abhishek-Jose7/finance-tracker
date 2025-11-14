@@ -40,8 +40,9 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const title = getPageTitle(pathname);
-  const { categories, addTransaction } = useAppContext();
+  const { categories, addTransaction, refreshData } = useAppContext();
   const [showAddExpense, setShowAddExpense] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     description: "",
     amount: "",
@@ -51,8 +52,12 @@ export function Header() {
   });
 
   const handleAddExpense = async () => {
-    if (!formData.description || !formData.amount || !formData.category) return;
+    if (!formData.description || !formData.amount || !formData.category) {
+      alert("Please fill in all required fields");
+      return;
+    }
     
+    setIsSubmitting(true);
     try {
       await addTransaction({
         description: formData.description,
@@ -61,6 +66,12 @@ export function Header() {
         date: formData.date,
         type: formData.type,
       });
+      
+      console.log("✅ Transaction added successfully!");
+      
+      // Refresh data to update dashboard and categories
+      await refreshData();
+      
       setShowAddExpense(false);
       setFormData({
         description: "",
@@ -71,6 +82,9 @@ export function Header() {
       });
     } catch (error) {
       console.error("Error adding transaction:", error);
+      alert("Failed to add transaction. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -189,11 +203,18 @@ export function Header() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddExpense(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAddExpense(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button onClick={handleAddExpense}>
-              Add Transaction
+            <Button 
+              onClick={handleAddExpense}
+              disabled={isSubmitting || !formData.description || !formData.amount || !formData.category}
+            >
+              {isSubmitting ? "Adding..." : "Add Transaction"}
             </Button>
           </DialogFooter>
         </DialogContent>

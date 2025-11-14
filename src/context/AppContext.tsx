@@ -177,6 +177,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    console.log('Adding transaction to database:', transaction);
+    
     try {
       const newTransaction = await dbCreateTransaction({
         amount: transaction.amount,
@@ -186,6 +188,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         type: transaction.type,
         merchant: transaction.merchant,
       });
+
+      console.log('Transaction saved to database:', newTransaction.id);
 
       setTransactions(prev => [
         {
