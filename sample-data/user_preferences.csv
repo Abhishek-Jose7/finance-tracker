@@ -1,0 +1,4 @@
+id,user_id,theme,language,notifications_enabled,ai_insights_enabled,auto_categorization_enabled,created_at,updated_at
+aa0e8400-e29b-41d4-a716-446655440000,550e8400-e29b-41d4-a716-446655440000,dark,en,true,true,true,2025-01-01 10:10:00+00,2025-01-01 10:10:00+00
+aa0e8400-e29b-41d4-a716-446655440001,550e8400-e29b-41d4-a716-446655440001,dark,en,true,true,true,2025-01-15 12:10:00+00,2025-01-15 12:10:00+00
+aa0e8400-e29b-41d4-a716-446655440002,550e8400-e29b-41d4-a716-446655440002,light,en,false,true,false,2025-02-01 08:10:00+00,2025-02-01 08:10:00+00

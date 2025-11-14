@@ -1,0 +1,4 @@
+id,user_id,file_name,file_type,file_size,processing_status,transactions_imported,error_message,created_at,updated_at
+990e8400-e29b-41d4-a716-446655440000,550e8400-e29b-41d4-a716-446655440000,bank_statement_oct_2025.csv,text/csv,15420,completed,28,,2025-10-31 16:00:00+00,2025-10-31 16:02:30+00
+990e8400-e29b-41d4-a716-446655440001,550e8400-e29b-41d4-a716-446655440000,credit_card_statement.pdf,application/pdf,45600,completed,15,,2025-11-01 10:30:00+00,2025-11-01 10:32:45+00
+990e8400-e29b-41d4-a716-446655440002,550e8400-e29b-41d4-a716-446655440001,october_expenses.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,23100,completed,22,,2025-10-30 14:00:00+00,2025-10-30 14:03:12+00

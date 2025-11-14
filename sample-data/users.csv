@@ -1,0 +1,4 @@
+id,clerk_user_id,email,name,avatar_url,monthly_income,currency,salary_day,occupation,onboarding_completed,phone,date_of_birth,created_at,updated_at
+550e8400-e29b-41d4-a716-446655440000,user_sample_001,john.doe@example.com,John Doe,https://api.dicebear.com/7.x/avataaars/svg?seed=John,75000,INR,1,Software Engineer,true,+91-9876543210,1990-05-15,2025-01-01 10:00:00+00,2025-01-01 10:00:00+00
+550e8400-e29b-41d4-a716-446655440001,user_sample_002,jane.smith@example.com,Jane Smith,https://api.dicebear.com/7.x/avataaars/svg?seed=Jane,65000,INR,5,Product Manager,true,+91-9876543211,1992-08-22,2025-01-15 12:00:00+00,2025-01-15 12:00:00+00
+550e8400-e29b-41d4-a716-446655440002,user_sample_003,alex.kumar@example.com,Alex Kumar,https://api.dicebear.com/7.x/avataaars/svg?seed=Alex,50000,INR,10,Marketing Specialist,true,+91-9876543212,1995-03-10,2025-02-01 08:00:00+00,2025-02-01 08:00:00+00
