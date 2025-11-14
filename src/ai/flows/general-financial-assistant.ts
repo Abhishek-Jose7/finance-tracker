@@ -110,39 +110,62 @@ async function callGrokAPI(input: GeneralAssistantInput): Promise<GeneralAssista
 export async function generalFinancialAssistant(input: GeneralAssistantInput): Promise<GeneralAssistantOutput> {
   try {
     console.log('🤖 Calling generalFinancialAssistant with input');
+    console.log('Environment check:', {
+      hasGemini: !!process.env.GEMINI_API_KEY,
+      hasGrok: !!process.env.GROK_API_KEY,
+      geminiKeyLength: process.env.GEMINI_API_KEY?.length,
+      grokKeyLength: process.env.GROK_API_KEY?.length
+    });
     
     // Try Gemini first
     if (process.env.GEMINI_API_KEY) {
       try {
+        console.log('Attempting Gemini API call...');
         const result = await generalAssistantFlow(input);
         console.log('✅ Gemini response successful');
         return result;
       } catch (geminiError: any) {
-        console.warn('⚠️ Gemini failed, trying Grok fallback:', geminiError.message);
+        console.error('⚠️ Gemini failed with error:', {
+          message: geminiError.message,
+          name: geminiError.name,
+          stack: geminiError.stack?.substring(0, 200)
+        });
         
         // Fallback to Grok
         if (process.env.GROK_API_KEY) {
+          console.log('Attempting Grok fallback...');
           const grokResult = await callGrokAPI(input);
           console.log('✅ Grok fallback successful');
           return grokResult;
         }
-        throw geminiError;
+        
+        // If no Grok key, provide specific Gemini error
+        throw new Error(`Gemini API failed: ${geminiError.message}. No Grok fallback available.`);
       }
     } else if (process.env.GROK_API_KEY) {
       // Use Grok directly if Gemini not available
-      console.log('Using Grok API directly');
+      console.log('Using Grok API directly (Gemini not configured)');
       return await callGrokAPI(input);
     }
     
-    throw new Error('No AI API keys configured');
+    throw new Error('No AI API keys configured. Please set GEMINI_API_KEY or GROK_API_KEY.');
   } catch (error: any) {
-    console.error('❌ Error in generalFinancialAssistant:', error.message);
-    console.error('Stack trace:', error.stack);
+    console.error('❌ Error in generalFinancialAssistant:', {
+      message: error.message,
+      name: error.name,
+      type: typeof error
+    });
+    console.error('Full error object:', error);
     
-    // Return a fallback response
+    // Return detailed error message for debugging
     return {
-      response: "I apologize, but I'm currently experiencing technical difficulties. Please try again in a moment, or check that all environment variables are properly configured.",
-      suggestions: ["Check your internet connection", "Refresh the page", "Contact support if the issue persists"],
+      response: `I apologize, but I'm currently experiencing technical difficulties. Error: ${error.message || 'Unknown error'}. Please check the console logs or contact support.`,
+      suggestions: [
+        "Verify API keys are configured correctly",
+        "Check Vercel deployment logs", 
+        "Ensure internet connectivity",
+        "Try refreshing the page"
+      ],
     };
   }
 }

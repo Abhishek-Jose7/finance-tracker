@@ -182,7 +182,13 @@ export function ChatInterface({
       setMessages((prev) => [...prev, assistantResponse]);
       
       // Save assistant response to database
-      await saveChatMessage("assistant", aiResponse.response);
+      console.log('Saving assistant response to DB:', aiResponse.response.substring(0, 100));
+      const saveResult = await saveChatMessage("assistant", aiResponse.response);
+      if (saveResult.error) {
+        console.error('Failed to save assistant message:', saveResult.error);
+      } else {
+        console.log('✅ Assistant message saved successfully');
+      }
 
       // Extract and save any new user preferences from the conversation
       if (text.toLowerCase().includes("rent") || text.toLowerCase().includes("salary") || 
@@ -192,16 +198,23 @@ export function ChatInterface({
         await updateUserPreferences({}, newContext);
       }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI Error:", error);
+        
+        // Show error message in chat instead of toast
+        const errorMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: `⚠️ Error: ${error.message || 'Failed to get AI response'}. Please check the console for details.`,
+        };
+        
+        setMessages((prev) => [...prev, errorMessage]);
+        
         toast({
             variant: "destructive",
             title: "AI Error",
-            description: "Sorry, I couldn't get a response from the AI. Please check your API key and try again."
+            description: error.message || "Sorry, I couldn't get a response from the AI. Check console logs."
         });
-        
-        // Remove user message if AI fails
-        setMessages(messages);
     } finally {
       setIsLoading(false);
     }

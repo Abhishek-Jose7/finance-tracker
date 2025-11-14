@@ -11,6 +11,7 @@ export async function saveChatMessage(
   try {
     const user = await currentUser();
     if (!user) {
+      console.error('saveChatMessage: Not authenticated');
       return { error: "Not authenticated" };
     }
 
@@ -22,8 +23,11 @@ export async function saveChatMessage(
       .single();
 
     if (!dbUser) {
+      console.error('saveChatMessage: User not found for clerk_user_id:', user.id);
       return { error: "User not found" };
     }
+
+    console.log(`💾 Saving ${role} message for user ${dbUser.id}:`, content.substring(0, 50));
 
     const { data, error } = await supabaseAdmin
       .from("chat_messages")
@@ -41,6 +45,7 @@ export async function saveChatMessage(
       return { error: error.message };
     }
 
+    console.log(`✅ ${role} message saved with id:`, data.id);
     return { data };
   } catch (error: any) {
     console.error("Error in saveChatMessage:", error);
