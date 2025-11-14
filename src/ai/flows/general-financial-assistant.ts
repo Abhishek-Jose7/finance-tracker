@@ -47,7 +47,16 @@ const GeneralAssistantOutputSchema = z.object({
 export type GeneralAssistantOutput = z.infer<typeof GeneralAssistantOutputSchema>;
 
 export async function generalFinancialAssistant(input: GeneralAssistantInput): Promise<GeneralAssistantOutput> {
-  return generalAssistantFlow(input);
+  try {
+    return await generalAssistantFlow(input);
+  } catch (error: any) {
+    console.error('❌ Error in generalFinancialAssistant:', error.message);
+    // Return a fallback response
+    return {
+      response: "I apologize, but I'm currently experiencing technical difficulties. Please try again in a moment, or check that all environment variables are properly configured.",
+      suggestions: ["Check your internet connection", "Refresh the page", "Contact support if the issue persists"],
+    };
+  }
 }
 
 const prompt = ai.definePrompt({

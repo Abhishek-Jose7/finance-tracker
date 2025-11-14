@@ -30,7 +30,16 @@ const GuideOnboardingOutputSchema = z.object({
 export type GuideOnboardingOutput = z.infer<typeof GuideOnboardingOutputSchema>;
 
 export async function guideOnboarding(input: GuideOnboardingInput): Promise<GuideOnboardingOutput> {
-  return guideOnboardingFlow(input);
+  try {
+    return await guideOnboardingFlow(input);
+  } catch (error: any) {
+    console.error('❌ Error in guideOnboarding:', error.message);
+    return {
+      response: "Welcome to FinAI! I'd love to help you get started with budgeting. To begin, could you tell me about your monthly income?",
+      nextStep: "income",
+      isComplete: false,
+    };
+  }
 }
 
 const prompt = ai.definePrompt({
