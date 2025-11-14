@@ -53,58 +53,110 @@ async function callGrokAPI(input: GeneralAssistantInput): Promise<GeneralAssista
     throw new Error('GROK_API_KEY not set');
   }
 
-  // Build a simple prompt
-  let prompt = `You are FinAI, a personal finance assistant. Analyze the user's financial data and provide specific advice.\n\n`;
-  prompt += `USER QUERY: ${input.userInput}\n\n`;
+  console.log('🔧 Building Grok API request...');
+
+  // Build system message
+  const systemMessage = `You are FinAI, a helpful personal finance assistant. Provide specific, actionable financial advice based on the user's data. Use actual numbers from their financial information. Be friendly and use emojis where appropriate.`;
+
+  // Build messages array with conversation history
+  const messages: Array<{role: string; content: string}> = [
+    { role: 'system', content: systemMessage }
+  ];
+
+  // Add conversation history if available
+  if (input.conversationHistory && input.conversationHistory.length > 0) {
+    input.conversationHistory.forEach(msg => {
+      messages.push({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: msg.content
+      });
+    });
+  }
+
+  // Build current user message with context
+  let userMessage = input.userInput;
   
   if (input.userContext) {
     const ctx = input.userContext;
-    prompt += `FINANCIAL DATA:\n`;
-    if (ctx.monthlyIncome) prompt += `- Monthly Income: ${ctx.currency}${ctx.monthlyIncome}\n`;
-    if (ctx.totalBudget) prompt += `- Total Budget: ${ctx.currency}${ctx.totalBudget}\n`;
-    if (ctx.totalSpent) prompt += `- Total Spent: ${ctx.currency}${ctx.totalSpent}\n`;
+    let contextInfo = '\n\n[Financial Context:\n';
+    
+    if (ctx.name) contextInfo += `Name: ${ctx.name}\n`;
+    if (ctx.monthlyIncome) contextInfo += `Monthly Income: ${ctx.currency || '₹'}${ctx.monthlyIncome}\n`;
+    if (ctx.totalBudget) contextInfo += `Total Budget: ${ctx.currency || '₹'}${ctx.totalBudget}\n`;
+    if (ctx.totalSpent) contextInfo += `Total Spent: ${ctx.currency || '₹'}${ctx.totalSpent}\n`;
     
     if (ctx.categories && ctx.categories.length > 0) {
-      prompt += `\nCATEGORIES:\n`;
+      contextInfo += `\nCategories:\n`;
       ctx.categories.forEach((cat: any) => {
-        prompt += `- ${cat.name}: Budget ${ctx.currency}${cat.budget}, Spent ${ctx.currency}${cat.spent}\n`;
+        const percentage = cat.budget > 0 ? Math.round((cat.spent / cat.budget) * 100) : 0;
+        contextInfo += `- ${cat.name}: ${ctx.currency || '₹'}${cat.spent}/${ctx.currency || '₹'}${cat.budget} (${percentage}%)\n`;
       });
     }
     
     if (ctx.recentTransactions && ctx.recentTransactions.length > 0) {
-      prompt += `\nRECENT TRANSACTIONS:\n`;
+      contextInfo += `\nRecent Transactions:\n`;
       ctx.recentTransactions.slice(0, 5).forEach((t: any) => {
-        prompt += `- ${t.date}: ${t.description} - ${ctx.currency}${t.amount} (${t.category})\n`;
+        contextInfo += `- ${t.date}: ${t.description} - ${ctx.currency || '₹'}${t.amount} (${t.category})\n`;
       });
     }
+    
+    contextInfo += ']';
+    userMessage += contextInfo;
   }
-  
-  prompt += `\nProvide specific, actionable financial advice with actual numbers. Be friendly and use emojis.`;
 
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${grokApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'grok-beta',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-    }),
+  messages.push({ role: 'user', content: userMessage });
+
+  console.log('📤 Grok API request:', {
+    endpoint: 'https://api.x.ai/v1/chat/completions',
+    model: 'grok-beta',
+    messageCount: messages.length,
+    userMessageLength: userMessage.length
   });
 
-  if (!response.ok) {
-    throw new Error(`Grok API error: ${response.status}`);
+  try {
+    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${grokApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'grok-beta',
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
+
+    const responseText = await response.text();
+    console.log('📥 Grok API response status:', response.status);
+
+    if (!response.ok) {
+      console.error('❌ Grok API error response:', responseText.substring(0, 500));
+      throw new Error(`Grok API error: ${response.status} - ${responseText.substring(0, 200)}`);
+    }
+
+    const data = JSON.parse(responseText);
+    const content = data.choices?.[0]?.message?.content;
+    
+    if (!content) {
+      console.error('❌ No content in Grok response:', data);
+      throw new Error('Grok API returned empty response');
+    }
+
+    console.log('✅ Grok API response received, length:', content.length);
+
+    return {
+      response: content,
+      suggestions: [],
+    };
+  } catch (error: any) {
+    console.error('❌ Grok API call failed:', {
+      message: error.message,
+      name: error.name
+    });
+    throw error;
   }
-
-  const data = await response.json();
-  const content = data.choices[0]?.message?.content || 'Unable to generate response';
-
-  return {
-    response: content,
-    suggestions: [],
-  };
 }
 
 export async function generalFinancialAssistant(input: GeneralAssistantInput): Promise<GeneralAssistantOutput> {
