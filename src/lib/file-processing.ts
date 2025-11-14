@@ -1,7 +1,7 @@
 "use server";
 
 import { currentUser } from "@clerk/nextjs/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function createUserBudgets(budgets: Array<{
   name: string;
@@ -484,3 +484,4 @@ function categorizeByRules(description: string, merchant: string | null): string
 
   return "Shopping"; // Default category
 }
+

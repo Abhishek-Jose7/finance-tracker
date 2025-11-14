@@ -1,6 +1,6 @@
 "use server";
 
-import { supabase } from "./supabase";
+import { supabaseAdmin } from "./supabase";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function saveChatMessage(
@@ -213,3 +213,4 @@ export async function clearChatHistory() {
     return { error: error.message };
   }
 }
+

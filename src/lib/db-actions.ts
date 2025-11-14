@@ -1,7 +1,7 @@
 'use server';
 
 import { currentUser } from '@clerk/nextjs/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 
 export async function syncUserToDatabase() {
   const user = await currentUser();
@@ -11,9 +11,10 @@ export async function syncUserToDatabase() {
     return null;
   }
 
-  console.log('Syncing user to database:', user.id);
+  console.log('Syncing user to database:', user.id, user.emailAddresses[0]?.emailAddress);
 
-  const { data: existingUser, error: fetchError } = await supabase
+  // Use admin client to bypass RLS for user creation
+  const { data: existingUser, error: fetchError } = await supabaseAdmin
     .from('users')
     .select('*')
     .eq('clerk_user_id', user.id)
@@ -25,7 +26,7 @@ export async function syncUserToDatabase() {
 
   if (!existingUser) {
     console.log('Creating new user in database');
-    const { data: newUser, error } = await supabase
+    const { data: newUser, error } = await supabaseAdmin
       .from('users')
       .insert({
         clerk_user_id: user.id,
@@ -39,15 +40,20 @@ export async function syncUserToDatabase() {
       .single();
 
     if (error) {
-      console.error('Error creating user:', error);
+      console.error('Error creating user - Details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return null;
     }
 
-    console.log('User created successfully:', newUser.id);
+    console.log('✅ User created successfully:', newUser.id);
     return newUser;
   }
 
-  console.log('User already exists:', existingUser.id);
+  console.log('✅ User already exists:', existingUser.id);
   return existingUser;
 }
 
@@ -55,7 +61,7 @@ export async function getUserTransactions() {
   const user = await currentUser();
   if (!user) return [];
 
-  const { data: dbUser } = await supabase
+  const { data: dbUser } = await supabaseAdmin
     .from('users')
     .select('id')
     .eq('clerk_user_id', user.id)
@@ -63,7 +69,7 @@ export async function getUserTransactions() {
 
   if (!dbUser) return [];
 
-  const { data: transactions, error } = await supabase
+  const { data: transactions, error } = await supabaseAdmin
     .from('transactions')
     .select('*')
     .eq('user_id', dbUser.id)
@@ -266,11 +272,11 @@ export async function deleteUserAccount() {
     // Delete all user data (cascade should handle most of this)
     // Delete in order: transactions, uploaded_files, categories, chat_messages, user_preferences, users
     
-    await supabase.from('transactions').delete().eq('user_id', dbUser.id);
-    await supabase.from('uploaded_files').delete().eq('user_id', dbUser.id);
-    await supabase.from('categories').delete().eq('user_id', dbUser.id);
-    await supabase.from('chat_messages').delete().eq('user_id', dbUser.id);
-    await supabase.from('user_preferences').delete().eq('user_id', dbUser.id);
+    await supabaseAdmin.from('transactions').delete().eq('user_id', dbUser.id);
+    await supabaseAdmin.from('uploaded_files').delete().eq('user_id', dbUser.id);
+    await supabaseAdmin.from('categories').delete().eq('user_id', dbUser.id);
+    await supabaseAdmin.from('chat_messages').delete().eq('user_id', dbUser.id);
+    await supabaseAdmin.from('user_preferences').delete().eq('user_id', dbUser.id);
     
     // Finally delete the user
     const { error } = await supabase
@@ -319,3 +325,4 @@ export async function completeUserOnboarding(profileData: {
 
   return { data, error };
 }
+
