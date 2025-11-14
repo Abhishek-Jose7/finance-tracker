@@ -20,9 +20,9 @@ const quickActions = [
     { label: "Analyze my budget", icon: Sparkles },
     { label: "Why am I overspending?", icon: HelpCircle },
     { label: "Predict my month-end spend", icon: Zap },
-    { label: "Give me a new budget plan", icon: Repeat },
-    { label: "I got a new job", icon: Briefcase },
-    { label: "Update my rent", icon: Home },
+    { label: "Give me savings tips", icon: Repeat },
+    { label: "Show spending trends", icon: Briefcase },
+    { label: "Help me save for goals", icon: Home },
 ];
 
 export function ChatInterface({
