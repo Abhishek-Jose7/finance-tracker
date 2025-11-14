@@ -16,6 +16,8 @@ import { ShoppingCart, Film, Home, UtensilsCrossed, Car, Shirt, HeartPulse, Book
 
 interface UserProfile {
   id: string;
+  name: string | null;
+  email: string | null;
   monthly_income: number | null;
   currency: string | null;
   salary_day: number | null;
@@ -23,6 +25,8 @@ interface UserProfile {
   onboarding_completed: boolean;
   phone: string | null;
   date_of_birth: string | null;
+  preferences?: Record<string, any>;
+  chat_context?: string | null;
 }
 
 interface AppContextType {
@@ -73,6 +77,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (dbUser) {
           setUserProfile({
             id: dbUser.id,
+            name: dbUser.name || null,
+            email: dbUser.email || null,
             monthly_income: dbUser.monthly_income,
             currency: dbUser.currency,
             salary_day: dbUser.salary_day,
@@ -80,6 +86,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             onboarding_completed: dbUser.onboarding_completed,
             phone: dbUser.phone,
             date_of_birth: dbUser.date_of_birth,
+            preferences: (dbUser as any).preferences || {},
+            chat_context: (dbUser as any).chat_context || null,
           });
         }
         

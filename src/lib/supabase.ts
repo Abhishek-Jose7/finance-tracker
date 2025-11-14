@@ -185,6 +185,54 @@ export interface Database {
           updated_at?: string;
         };
       };
+      chat_messages: {
+        Row: {
+          id: string;
+          user_id: string;
+          role: 'user' | 'assistant' | 'system';
+          content: string;
+          metadata: Record<string, any>;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          role: 'user' | 'assistant' | 'system';
+          content: string;
+          metadata?: Record<string, any>;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          role?: 'user' | 'assistant' | 'system';
+          content?: string;
+          metadata?: Record<string, any>;
+        };
+      };
+      user_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          preferences: Record<string, any>;
+          ai_context: string | null;
+          last_updated: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          preferences?: Record<string, any>;
+          ai_context?: string | null;
+          last_updated?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          preferences?: Record<string, any>;
+          ai_context?: string | null;
+          last_updated?: string;
+        };
+      };
     };
   };
 }

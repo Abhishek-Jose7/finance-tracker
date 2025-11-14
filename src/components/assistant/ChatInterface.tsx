@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
-import { Bot, Send, Sparkles, Zap, HelpCircle, Repeat, Briefcase, Home } from "lucide-react";
+import { Bot, Send, Sparkles, Zap, HelpCircle, Repeat, Briefcase, Home, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,8 @@ import type { ChatMessage } from "@/lib/types";
 import { mockUser } from "@/lib/data";
 import { guideOnboarding } from "@/ai/flows/guide-onboarding-conversationally";
 import { useToast } from "@/hooks/use-toast";
+import { saveChatMessage, getChatHistory, getUserPreferences, updateUserPreferences, clearChatHistory } from "@/lib/chat-actions";
+import { useAppContext } from "@/context/AppContext";
 
 const quickActions = [
     { label: "Analyze my budget", icon: Sparkles },
@@ -27,18 +29,55 @@ export function ChatInterface({
 }: {
   initialMessages?: ChatMessage[];
 }) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content:
-        "Hello! I'm FinAI, your personal finance assistant. How can I help you today?",
-    },
-    ...initialMessages,
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [userContext, setUserContext] = useState<string>("");
   const { toast } = useToast();
+  const { userProfile } = useAppContext();
+
+  // Load chat history on mount
+  useEffect(() => {
+    loadChatHistory();
+    loadUserContext();
+  }, []);
+
+  const loadChatHistory = async () => {
+    setLoadingHistory(true);
+    const result = await getChatHistory(50);
+    
+    if (result.error) {
+      console.error("Error loading chat history:", result.error);
+      // Start with welcome message if no history
+      setMessages([{
+        id: "1",
+        role: "assistant",
+        content: `Hello! I'm FinAI, your personal finance assistant. ${userProfile?.name ? `Nice to see you again, ${userProfile.name}!` : ''} How can I help you today?`,
+      }]);
+    } else if (result.data && result.data.length > 0) {
+      setMessages(result.data.map(msg => ({
+        id: msg.id,
+        role: msg.role,
+        content: msg.content,
+      })));
+    } else {
+      // First time user
+      setMessages([{
+        id: "1",
+        role: "assistant",
+        content: `Hello! I'm FinAI, your personal finance assistant. ${userProfile?.name ? `Welcome, ${userProfile.name}!` : ''} How can I help you today?`,
+      }]);
+    }
+    setLoadingHistory(false);
+  };
+
+  const loadUserContext = async () => {
+    const result = await getUserPreferences();
+    if (result.data) {
+      setUserContext(result.data.ai_context || "");
+    }
+  };
 
   const handleSendMessage = async (messageContent?: string) => {
     const text = messageContent || input;
@@ -55,6 +94,9 @@ export function ChatInterface({
     setInput("");
     setIsLoading(true);
 
+    // Save user message to database
+    await saveChatMessage("user", text);
+
     try {
       const history = newMessages
         .filter(m => typeof m.content === 'string')
@@ -63,23 +105,68 @@ export function ChatInterface({
             content: m.content as string
         }));
 
-      const aiResponse = await guideOnboarding({ userInput: text, conversationHistory: history });
+      // Include user context and profile in AI request
+      const contextPrompt = userContext ? `\n\nUser Context: ${userContext}\n\nUser Profile: Name: ${userProfile?.name}, Income: ${userProfile?.monthly_income}, Currency: ${userProfile?.currency}` : "";
+      
+      const aiResponse = await guideOnboarding({ 
+        userInput: text + contextPrompt, 
+        conversationHistory: history 
+      });
 
       const assistantResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: aiResponse.response,
       };
+      
       setMessages((prev) => [...prev, assistantResponse]);
+      
+      // Save assistant response to database
+      await saveChatMessage("assistant", aiResponse.response);
+
+      // Extract and save any new user preferences from the conversation
+      if (text.toLowerCase().includes("rent") || text.toLowerCase().includes("salary") || 
+          text.toLowerCase().includes("job") || text.toLowerCase().includes("income")) {
+        const newContext = `${userContext}\n${new Date().toISOString()}: ${text}`;
+        setUserContext(newContext);
+        await updateUserPreferences({}, newContext);
+      }
+
     } catch (error) {
         console.error("AI Error:", error);
         toast({
             variant: "destructive",
             title: "AI Error",
             description: "Sorry, I couldn't get a response from the AI. Please check your API key and try again."
-        })
+        });
+        
+        // Remove user message if AI fails
+        setMessages(messages);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (confirm("Are you sure you want to clear all chat history? This cannot be undone.")) {
+      const result = await clearChatHistory();
+      if (result.error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to clear chat history"
+        });
+      } else {
+        setMessages([{
+          id: "1",
+          role: "assistant",
+          content: "Chat history cleared. How can I help you today?",
+        }]);
+        toast({
+          title: "Success",
+          description: "Chat history cleared successfully"
+        });
+      }
     }
   };
 
@@ -90,9 +177,21 @@ export function ChatInterface({
 
   return (
     <div className="flex flex-col h-full max-h-[calc(100vh-10rem)]">
+      <div className="flex items-center justify-between p-4 border-b">
+        <h3 className="font-semibold">AI Assistant</h3>
+        <Button variant="ghost" size="sm" onClick={handleClearHistory}>
+          <Trash2 className="h-4 w-4 mr-2" />
+          Clear History
+        </Button>
+      </div>
       <ScrollArea className="flex-1 p-4">
-        <div className="space-y-6">
-          {messages.map((message) => (
+        {loadingHistory ? (
+          <div className="flex items-center justify-center h-full">
+            <Bot className="h-8 w-8 text-primary animate-pulse" />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {messages.map((message) => (
             <div
               key={message.id}
               className={`flex items-start gap-3 ${
@@ -139,7 +238,8 @@ export function ChatInterface({
                 </div>
             </div>
           )}
-        </div>
+          </div>
+        )}
       </ScrollArea>
       <div className="p-4 border-t">
         <ScrollArea className="w-full whitespace-nowrap">

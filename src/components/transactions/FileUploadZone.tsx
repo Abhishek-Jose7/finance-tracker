@@ -79,6 +79,7 @@ export function FileUploadZone() {
       "text/csv": [".csv"],
       "application/json": [".json"],
       "application/pdf": [".pdf"],
+      "text/html": [".html", ".htm"],
       "image/*": [".png", ".jpg", ".jpeg"],
     },
     maxFiles: 1,
@@ -93,7 +94,7 @@ export function FileUploadZone() {
           Upload Transactions
         </CardTitle>
         <CardDescription>
-          Upload your bank statements, GPay transactions, or any transaction file (CSV, PDF, JSON, or Image)
+          Upload your bank statements, GPay transactions, or any transaction file (CSV, PDF, JSON, HTML, or Image)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -126,7 +127,7 @@ export function FileUploadZone() {
                   : "Drag & drop your transaction file here"}
               </p>
               <p className="text-sm text-slate-400 mt-1">
-                or click to browse • CSV, PDF, JSON, or Images
+                or click to browse • CSV, PDF, JSON, HTML, or Images
               </p>
             </div>
           </div>
@@ -166,6 +167,7 @@ export function FileUploadZone() {
             <li><strong>CSV/Excel:</strong> Bank statements, GPay exports</li>
             <li><strong>PDF:</strong> Bank statements (extracted via OCR)</li>
             <li><strong>JSON:</strong> App exports from financial apps</li>
+            <li><strong>HTML:</strong> Bank website exports, transaction history pages</li>
             <li><strong>Images:</strong> Screenshots of transactions</li>
           </ul>
           <p className="text-xs pt-2">
@@ -212,6 +214,9 @@ function getFileType(filename: string): string {
       return "application/json";
     case "pdf":
       return "application/pdf";
+    case "html":
+    case "htm":
+      return "text/html";
     case "png":
     case "jpg":
     case "jpeg":
