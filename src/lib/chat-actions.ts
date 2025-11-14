@@ -15,7 +15,7 @@ export async function saveChatMessage(
     }
 
     // Get user from database
-    const { data: dbUser } = await supabase
+    const { data: dbUser } = await supabaseAdmin
       .from("users")
       .select("id")
       .eq("clerk_user_id", user.id)
@@ -25,7 +25,7 @@ export async function saveChatMessage(
       return { error: "User not found" };
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("chat_messages")
       .insert({
         user_id: dbUser.id,
@@ -56,7 +56,7 @@ export async function getChatHistory(limit: number = 50) {
     }
 
     // Get user from database
-    const { data: dbUser } = await supabase
+    const { data: dbUser } = await supabaseAdmin
       .from("users")
       .select("id")
       .eq("clerk_user_id", user.id)
@@ -66,7 +66,7 @@ export async function getChatHistory(limit: number = 50) {
       return { error: "User not found" };
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("chat_messages")
       .select("*")
       .eq("user_id", dbUser.id)
@@ -96,7 +96,7 @@ export async function updateUserPreferences(
     }
 
     // Get user from database
-    const { data: dbUser } = await supabase
+    const { data: dbUser } = await supabaseAdmin
       .from("users")
       .select("id")
       .eq("clerk_user_id", user.id)
@@ -107,7 +107,7 @@ export async function updateUserPreferences(
     }
 
     // Upsert user preferences
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("user_preferences")
       .upsert({
         user_id: dbUser.id,
@@ -126,7 +126,7 @@ export async function updateUserPreferences(
     }
 
     // Also update user table preferences
-    await supabase
+    await supabaseAdmin
       .from("users")
       .update({
         preferences,
@@ -150,7 +150,7 @@ export async function getUserPreferences() {
     }
 
     // Get user from database
-    const { data: dbUser } = await supabase
+    const { data: dbUser } = await supabaseAdmin
       .from("users")
       .select("id, preferences, chat_context")
       .eq("clerk_user_id", user.id)
@@ -161,7 +161,7 @@ export async function getUserPreferences() {
     }
 
     // Try to get from user_preferences table
-    const { data: prefs } = await supabase
+    const { data: prefs } = await supabaseAdmin
       .from("user_preferences")
       .select("*")
       .eq("user_id", dbUser.id)
@@ -187,7 +187,7 @@ export async function clearChatHistory() {
     }
 
     // Get user from database
-    const { data: dbUser } = await supabase
+    const { data: dbUser } = await supabaseAdmin
       .from("users")
       .select("id")
       .eq("clerk_user_id", user.id)
@@ -197,7 +197,7 @@ export async function clearChatHistory() {
       return { error: "User not found" };
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("chat_messages")
       .delete()
       .eq("user_id", dbUser.id);
@@ -213,4 +213,5 @@ export async function clearChatHistory() {
     return { error: error.message };
   }
 }
+
 
