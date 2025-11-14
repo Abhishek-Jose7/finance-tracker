@@ -130,7 +130,7 @@ export function ChatInterface({
         }));
 
       const financialContext = {
-        name: userProfile?.name,
+        name: userProfile?.name || undefined,
         monthlyIncome: userProfile?.monthly_income || undefined,
         currency: userProfile?.currency || '₹',
         categories: categoryData,
