@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default function MainPage() {
-  // This will redirect to the dashboard layout
-  redirect("/dashboard");
+import { Dashboard } from "@/components/dashboard/Dashboard";
+
+export default function DashboardPage() {
+  return <Dashboard />;
 }

@@ -27,6 +27,11 @@ export default function HeroPage() {
     );
   }
 
+  // Don't render hero page if user is signed in
+  if (isSignedIn) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Navigation */}
