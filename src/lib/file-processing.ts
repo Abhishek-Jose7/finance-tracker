@@ -14,7 +14,7 @@ export async function createUserBudgets(budgets: Array<{
     return { error: "Unauthorized" };
   }
 
-  const { data: dbUser } = await supabase
+  const { data: dbUser } = await supabaseAdmin
     .from("users")
     .select("id")
     .eq("clerk_user_id", user.id)
@@ -25,13 +25,13 @@ export async function createUserBudgets(budgets: Array<{
   }
 
   // Delete existing categories
-  await supabase
+  await supabaseAdmin
     .from("categories")
     .delete()
     .eq("user_id", dbUser.id);
 
   // Insert new budgets
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("categories")
     .insert(
       budgets.map(budget => ({
@@ -68,7 +68,7 @@ export async function processUploadedFile(fileData: {
   }
 
   // Create uploaded_files record
-  const { data: uploadedFile, error: uploadError } = await supabase
+  const { data: uploadedFile, error: uploadError } = await supabaseAdmin
     .from("uploaded_files")
     .insert({
       user_id: dbUser.id,
@@ -92,7 +92,7 @@ export async function processUploadedFile(fileData: {
     );
 
     if (transactions.length === 0) {
-      await supabase
+      await supabaseAdmin
         .from("uploaded_files")
         .update({
           processing_status: "failed",
@@ -107,7 +107,7 @@ export async function processUploadedFile(fileData: {
     const categorizedTransactions = await categorizeTransactions(transactions);
 
     // Insert transactions into database
-    const { data: insertedTransactions, error: insertError } = await supabase
+    const { data: insertedTransactions, error: insertError } = await supabaseAdmin
       .from("transactions")
       .insert(
         categorizedTransactions.map(t => ({
@@ -127,7 +127,7 @@ export async function processUploadedFile(fileData: {
       .select();
 
     if (insertError) {
-      await supabase
+      await supabaseAdmin
         .from("uploaded_files")
         .update({
           processing_status: "failed",
@@ -139,7 +139,7 @@ export async function processUploadedFile(fileData: {
     }
 
     // Update upload record as completed
-    await supabase
+    await supabaseAdmin
       .from("uploaded_files")
       .update({
         processing_status: "completed",
@@ -156,7 +156,7 @@ export async function processUploadedFile(fileData: {
       },
     };
   } catch (error: any) {
-    await supabase
+    await supabaseAdmin
       .from("uploaded_files")
       .update({
         processing_status: "failed",
@@ -484,4 +484,5 @@ function categorizeByRules(description: string, merchant: string | null): string
 
   return "Shopping"; // Default category
 }
+
 
