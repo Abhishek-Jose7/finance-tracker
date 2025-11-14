@@ -77,8 +77,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const dbUser = await syncUserToDatabase();
         
         if (!dbUser) {
-          console.error('❌ Failed to sync user to database. This usually means SUPABASE_SERVICE_ROLE_KEY is not set in Vercel environment variables.');
-          console.error('⚠️ Please add SUPABASE_SERVICE_ROLE_KEY to your Vercel project settings.');
+          console.error('❌ Failed to sync user to database.');
+          console.error('🔍 Check /api/test-sync for detailed diagnostics');
           setIsLoading(false);
           return;
         }
