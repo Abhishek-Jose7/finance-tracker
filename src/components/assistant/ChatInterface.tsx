@@ -57,7 +57,7 @@ export function ChatInterface({
         content: `Hello! I'm FinAI, your personal finance assistant. ${userProfile?.name ? `Nice to see you again, ${userProfile.name}!` : ''} How can I help you today?`,
       }]);
     } else if (result.data && result.data.length > 0) {
-      setMessages(result.data.map(msg => ({
+      setMessages(result.data.map((msg: any) => ({
         id: msg.id,
         role: msg.role,
         content: msg.content,
