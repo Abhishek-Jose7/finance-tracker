@@ -38,11 +38,21 @@ export function ChatInterface({
   const { toast } = useToast();
   const { userProfile, transactions, categories } = useAppContext();
 
-  // Load chat history on mount
+  // Load chat history on mount - only if user has completed onboarding
   useEffect(() => {
-    loadChatHistory();
-    loadUserContext();
-  }, []);
+    if (userProfile?.onboarding_completed) {
+      loadChatHistory();
+      loadUserContext();
+    } else {
+      // Show welcome message for new users
+      setMessages([{
+        id: "1",
+        role: "assistant",
+        content: `Hello! I'm FinAI, your personal finance assistant. ${userProfile?.name ? `Welcome, ${userProfile.name}!` : ''} Complete the onboarding to start tracking your finances.`,
+      }]);
+      setLoadingHistory(false);
+    }
+  }, [userProfile?.onboarding_completed]);
 
   const loadChatHistory = async () => {
     setLoadingHistory(true);
