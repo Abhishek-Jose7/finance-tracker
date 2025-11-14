@@ -11,6 +11,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { ChatMessage } from "@/lib/types";
 import { mockUser } from "@/lib/data";
 import { guideOnboarding } from "@/ai/flows/guide-onboarding-conversationally";
+import { generalFinancialAssistant } from "@/ai/flows/general-financial-assistant";
 import { useToast } from "@/hooks/use-toast";
 import { saveChatMessage, getChatHistory, getUserPreferences, updateUserPreferences, clearChatHistory } from "@/lib/chat-actions";
 import { useAppContext } from "@/context/AppContext";
@@ -35,7 +36,7 @@ export function ChatInterface({
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [userContext, setUserContext] = useState<string>("");
   const { toast } = useToast();
-  const { userProfile } = useAppContext();
+  const { userProfile, transactions, categories } = useAppContext();
 
   // Load chat history on mount
   useEffect(() => {
@@ -105,13 +106,62 @@ export function ChatInterface({
             content: m.content as string
         }));
 
-      // Include user context and profile in AI request
-      const contextPrompt = userContext ? `\n\nUser Context: ${userContext}\n\nUser Profile: Name: ${userProfile?.name}, Income: ${userProfile?.monthly_income}, Currency: ${userProfile?.currency}` : "";
+      // Prepare user financial context with actual data
+      const totalSpent = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
       
-      const aiResponse = await guideOnboarding({ 
-        userInput: text + contextPrompt, 
-        conversationHistory: history 
-      });
+      const totalBudget = categories.reduce((sum, c) => sum + c.budget, 0);
+      
+      const categoryData = categories.map(cat => ({
+        name: cat.name,
+        budget: cat.budget,
+        spent: cat.spent,
+      }));
+
+      const recentTransactions = transactions
+        .slice(0, 10)
+        .map(t => ({
+          description: t.description,
+          amount: t.amount,
+          category: t.category,
+          date: t.date,
+          type: t.type,
+        }));
+
+      const financialContext = {
+        name: userProfile?.name,
+        monthlyIncome: userProfile?.monthly_income || undefined,
+        currency: userProfile?.currency || '₹',
+        categories: categoryData,
+        totalSpent,
+        totalBudget,
+        recentTransactions,
+      };
+
+      // Determine if this is onboarding or general query
+      const isOnboardingQuery = 
+        !userProfile?.onboarding_completed ||
+        text.toLowerCase().includes('onboard') ||
+        text.toLowerCase().includes('get started') ||
+        text.toLowerCase().includes('set up');
+
+      let aiResponse;
+      
+      if (isOnboardingQuery && !userProfile?.onboarding_completed) {
+        // Use onboarding flow for new users
+        aiResponse = await guideOnboarding({ 
+          userInput: text, 
+          conversationHistory: history 
+        });
+      } else {
+        // Use general financial assistant with full context
+        aiResponse = await generalFinancialAssistant({
+          userInput: text,
+          conversationHistory: history,
+          userContext: financialContext,
+        });
+      }
 
       const assistantResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
