@@ -251,32 +251,96 @@ async function parseTransactions(content: string, fileType: string) {
       console.error("JSON parse error:", e);
     }
   } else if (fileType === "html" || fileType === "text/html") {
-    // Parse HTML - extract transaction data from tables
+    // Parse HTML - extract transaction data from tables and text
+    console.log('Parsing HTML content, length:', content.length);
+    
+    // Try table extraction first
     const tableMatches = content.match(/<table[^>]*>([\s\S]*?)<\/table>/gi);
-    if (tableMatches) {
-      tableMatches.forEach(table => {
+    if (tableMatches && tableMatches.length > 0) {
+      console.log('Found', tableMatches.length, 'tables');
+      tableMatches.forEach((table, tableIndex) => {
         const rows = table.match(/<tr[^>]*>([\s\S]*?)<\/tr>/gi) || [];
-        rows.forEach(row => {
-          const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi) || [];
-          const cellTexts = cells.map(cell => cell.replace(/<[^>]*>/g, '').trim());
+        console.log('Table', tableIndex, 'has', rows.length, 'rows');
+        
+        rows.forEach((row, rowIndex) => {
+          // Skip header rows
+          if (rowIndex === 0 && row.toLowerCase().includes('<th')) {
+            return;
+          }
           
-          // Try to find amount patterns
-          const amountMatch = cellTexts.find(text => /[\₹$€£]\s*[\d,]+\.?\d*/.test(text));
-          if (amountMatch) {
-            const amount = parseFloat(amountMatch.replace(/[^\d.]/g, ''));
-            if (amount > 0) {
-              transactions.push({
-                amount,
-                description: cellTexts[0] || "Transaction",
-                merchant: null,
-                date: parseDate(cellTexts.find(text => /\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}/.test(text)) || ""),
-                type: "expense",
-              });
+          const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi) || [];
+          const cellTexts = cells.map(cell => cell.replace(/<[^>]*>/g, '').trim()).filter(t => t.length > 0);
+          
+          console.log('Row', rowIndex, 'cells:', cellTexts);
+          
+          if (cellTexts.length < 2) return; // Need at least 2 cells
+          
+          // Try to find amount in any cell (with or without currency symbol)
+          let amount = 0;
+          let amountIndex = -1;
+          
+          for (let i = 0; i < cellTexts.length; i++) {
+            const text = cellTexts[i];
+            // Match amounts with optional currency symbols and commas
+            const match = text.match(/[\₹$€£]?\s*([\d,]+\.?\d*)/);
+            if (match) {
+              const parsedAmount = parseFloat(match[1].replace(/,/g, ''));
+              if (!isNaN(parsedAmount) && parsedAmount > 0) {
+                amount = parsedAmount;
+                amountIndex = i;
+                break;
+              }
             }
+          }
+          
+          if (amount > 0) {
+            // Use first non-amount cell as description
+            const description = cellTexts.find((t, i) => i !== amountIndex && t.length > 0) || "Transaction";
+            
+            // Try to find date
+            const dateCell = cellTexts.find(text => /\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}/.test(text));
+            
+            transactions.push({
+              amount,
+              description: description.substring(0, 100), // Limit length
+              merchant: null,
+              date: parseDate(dateCell || ""),
+              type: "expense",
+            });
           }
         });
       });
     }
+    
+    // If no transactions found in tables, try to extract from plain text
+    if (transactions.length === 0) {
+      console.log('No table data found, trying text extraction');
+      
+      // Remove HTML tags and extract lines
+      const text = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+      const lines = text.split(/\n|<br>/i).map(l => l.trim()).filter(l => l.length > 10);
+      
+      console.log('Found', lines.length, 'text lines');
+      
+      lines.forEach(line => {
+        // Look for amount patterns
+        const amountMatch = line.match(/[\₹$€£]?\s*([\d,]+\.?\d*)/);
+        if (amountMatch) {
+          const amount = parseFloat(amountMatch[1].replace(/,/g, ''));
+          if (amount > 10) { // Reasonable transaction amount
+            transactions.push({
+              amount,
+              description: line.substring(0, 50) || "Transaction",
+              merchant: null,
+              date: parseDate(""),
+              type: "expense",
+            });
+          }
+        }
+      });
+    }
+    
+    console.log('HTML parsing complete. Found', transactions.length, 'transactions');
   } else if (fileType.includes("image")) {
     // For images, add a placeholder - in production you'd use OCR
     transactions.push({
