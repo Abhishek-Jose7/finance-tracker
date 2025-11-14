@@ -244,6 +244,52 @@ export async function updateTransactionCategory(transactionId: string, category:
   return data;
 }
 
+export async function deleteUserAccount() {
+  'use server';
+  
+  const user = await currentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  const { data: dbUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('clerk_user_id', user.id)
+    .single();
+
+  if (!dbUser) {
+    return { error: 'User not found in database' };
+  }
+
+  try {
+    // Delete all user data (cascade should handle most of this)
+    // Delete in order: transactions, uploaded_files, categories, chat_messages, user_preferences, users
+    
+    await supabase.from('transactions').delete().eq('user_id', dbUser.id);
+    await supabase.from('uploaded_files').delete().eq('user_id', dbUser.id);
+    await supabase.from('categories').delete().eq('user_id', dbUser.id);
+    await supabase.from('chat_messages').delete().eq('user_id', dbUser.id);
+    await supabase.from('user_preferences').delete().eq('user_id', dbUser.id);
+    
+    // Finally delete the user
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', dbUser.id);
+
+    if (error) {
+      console.error('Error deleting user:', error);
+      return { error: error.message };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error in deleteUserAccount:', error);
+    return { error: error.message };
+  }
+}
+
 export async function completeUserOnboarding(profileData: {
   monthly_income?: number;
   currency?: string;

@@ -172,50 +172,77 @@ async function parseTransactions(content: string, fileType: string) {
   const transactions: any[] = [];
 
   if (fileType === "csv" || fileType === "text/csv") {
-    // Parse CSV
+    // Parse CSV - handle quoted values and commas within quotes
     const lines = content.split("\n");
-    const headers = lines[0].toLowerCase().split(",");
+    if (lines.length < 2) return transactions;
+
+    const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
 
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
 
-      const values = lines[i].split(",");
+      const values = parseCSVLine(lines[i]);
       const transaction: any = {};
 
       headers.forEach((header, index) => {
-        const trimmedHeader = header.trim();
-        transaction[trimmedHeader] = values[index]?.trim() || "";
+        transaction[header] = values[index]?.trim() || "";
       });
 
-      // Try to extract transaction data
+      // Try to extract transaction data - support multiple column name variations
       const amount = parseFloat(
-        transaction.amount || transaction.debit || transaction.credit || transaction["amount (inr)"] || "0"
+        transaction.amount || 
+        transaction.debit || 
+        transaction.credit || 
+        transaction["amount (inr)"] || 
+        transaction["withdrawal"] ||
+        transaction["deposit"] ||
+        transaction["amt"] ||
+        "0"
       );
 
-      if (amount > 0) {
+      if (amount > 0 || amount < 0) {
         transactions.push({
           amount: Math.abs(amount),
-          description: transaction.description || transaction.narration || transaction.particulars || transaction.details || "Transaction",
-          merchant: transaction.merchant || transaction.to || transaction.counterparty || null,
-          date: parseDate(transaction.date || transaction["transaction date"] || new Date().toISOString()),
+          description: 
+            transaction.description || 
+            transaction.narration || 
+            transaction.particulars || 
+            transaction.details ||
+            transaction.memo ||
+            transaction.note ||
+            "Transaction",
+          merchant: 
+            transaction.merchant || 
+            transaction.to || 
+            transaction.counterparty ||
+            transaction.payee ||
+            transaction.vendor ||
+            null,
+          date: parseDate(
+            transaction.date || 
+            transaction["transaction date"] || 
+            transaction["trans date"] ||
+            transaction["value date"] ||
+            new Date().toISOString()
+          ),
           type: determineType(transaction, amount),
         });
       }
     }
   } else if (fileType === "json" || fileType === "application/json") {
-    // Parse JSON
+    // Parse JSON - handle various JSON structures
     try {
       const data = JSON.parse(content);
-      const items = Array.isArray(data) ? data : data.transactions || data.data || [];
+      const items = Array.isArray(data) ? data : data.transactions || data.data || data.items || [];
 
       items.forEach((item: any) => {
-        const amount = Math.abs(parseFloat(item.amount || item.value || item.price || 0));
+        const amount = Math.abs(parseFloat(item.amount || item.value || item.price || item.amt || 0));
         if (amount > 0) {
           transactions.push({
             amount,
-            description: item.description || item.title || item.name || "Transaction",
-            merchant: item.merchant || item.vendor || item.payee || null,
-            date: parseDate(item.date || item.timestamp || new Date().toISOString()),
+            description: item.description || item.title || item.name || item.particulars || "Transaction",
+            merchant: item.merchant || item.vendor || item.payee || item.to || null,
+            date: parseDate(item.date || item.timestamp || item.transactionDate || new Date().toISOString()),
             type: item.type || (amount < 0 ? "expense" : "income"),
           });
         }
@@ -223,9 +250,68 @@ async function parseTransactions(content: string, fileType: string) {
     } catch (e) {
       console.error("JSON parse error:", e);
     }
+  } else if (fileType === "html" || fileType === "text/html") {
+    // Parse HTML - extract transaction data from tables
+    const tableMatches = content.match(/<table[^>]*>([\s\S]*?)<\/table>/gi);
+    if (tableMatches) {
+      tableMatches.forEach(table => {
+        const rows = table.match(/<tr[^>]*>([\s\S]*?)<\/tr>/gi) || [];
+        rows.forEach(row => {
+          const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi) || [];
+          const cellTexts = cells.map(cell => cell.replace(/<[^>]*>/g, '').trim());
+          
+          // Try to find amount patterns
+          const amountMatch = cellTexts.find(text => /[\₹$€£]\s*[\d,]+\.?\d*/.test(text));
+          if (amountMatch) {
+            const amount = parseFloat(amountMatch.replace(/[^\d.]/g, ''));
+            if (amount > 0) {
+              transactions.push({
+                amount,
+                description: cellTexts[0] || "Transaction",
+                merchant: null,
+                date: parseDate(cellTexts.find(text => /\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}/.test(text)) || ""),
+                type: "expense",
+              });
+            }
+          }
+        });
+      });
+    }
+  } else if (fileType.includes("image")) {
+    // For images, add a placeholder - in production you'd use OCR
+    transactions.push({
+      amount: 0,
+      description: "Image upload - manual entry required",
+      merchant: null,
+      date: new Date().toISOString().split("T")[0],
+      type: "expense",
+    });
   }
 
   return transactions;
+}
+
+// Helper function to parse CSV line handling quoted values
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  
+  return result.map(val => val.replace(/^"|"$/g, ''));
 }
 
 function parseDate(dateStr: string): string {

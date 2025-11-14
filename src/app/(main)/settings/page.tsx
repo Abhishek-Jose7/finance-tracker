@@ -37,9 +37,25 @@ import {
 } from "lucide-react";
 import { BudgetManagement } from "@/components/settings/BudgetManagement";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { deleteUserAccount } from "@/lib/db-actions";
+import { useAuth } from "@clerk/nextjs";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { signOut } = useAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Budget Management Section */}
@@ -242,7 +258,54 @@ export default function SettingsPage() {
               Require authentication to open the app.
           </p>
           <div>
-            <Button variant="destructive">Delete Account & Data</Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={isDeleting}>
+                  {isDeleting ? "Deleting..." : "Delete Account & Data"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your account
+                    and remove all your data from our servers including:
+                    <ul className="list-disc list-inside mt-2 space-y-1">
+                      <li>All transactions and financial data</li>
+                      <li>Budget categories and limits</li>
+                      <li>Chat history with AI assistant</li>
+                      <li>Uploaded files and documents</li>
+                      <li>User preferences and settings</li>
+                    </ul>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-red-500 hover:bg-red-600"
+                    onClick={async () => {
+                      setIsDeleting(true);
+                      try {
+                        const result = await deleteUserAccount();
+                        if (result.error) {
+                          alert("Error deleting account: " + result.error);
+                          setIsDeleting(false);
+                        } else {
+                          // Sign out from Clerk and redirect
+                          await signOut();
+                          router.push("/");
+                        }
+                      } catch (error: any) {
+                        alert("Error: " + error.message);
+                        setIsDeleting(false);
+                      }
+                    }}
+                  >
+                    Yes, delete my account
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
              <p className="text-sm text-muted-foreground mt-2">
                 This action is permanent and cannot be undone.
             </p>
