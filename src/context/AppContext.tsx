@@ -137,8 +137,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         setTransactions(transformedTransactions);
         setCategories(transformedCategories);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading user data:', error);
+        console.error('Error details:', {
+          message: error?.message,
+          stack: error?.stack,
+          name: error?.name,
+          cause: error?.cause
+        });
         // Show empty state instead of mock data
         setTransactions([]);
         setCategories([]);
