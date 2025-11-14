@@ -1,4 +1,6 @@
 
+"use client";
+
 import {
   Accordion,
   AccordionContent,
@@ -34,8 +36,10 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { BudgetManagement } from "@/components/settings/BudgetManagement";
+import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
+  const router = useRouter();
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Budget Management Section */}
@@ -269,7 +273,7 @@ export default function SettingsPage() {
           <CardDescription>Test your Supabase database connection</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button variant="outline" onClick={() => window.location.href = '/settings/test-db'}>
+          <Button variant="outline" onClick={() => router.push('/settings/test-db')}>
             <Database className="mr-2 h-4 w-4" />
             Test Database Connection
           </Button>
