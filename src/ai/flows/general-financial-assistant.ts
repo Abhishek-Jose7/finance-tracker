@@ -48,9 +48,14 @@ export type GeneralAssistantOutput = z.infer<typeof GeneralAssistantOutputSchema
 
 export async function generalFinancialAssistant(input: GeneralAssistantInput): Promise<GeneralAssistantOutput> {
   try {
-    return await generalAssistantFlow(input);
+    console.log('🤖 Calling generalFinancialAssistant with input:', JSON.stringify(input, null, 2));
+    const result = await generalAssistantFlow(input);
+    console.log('✅ generalFinancialAssistant result:', result);
+    return result;
   } catch (error: any) {
     console.error('❌ Error in generalFinancialAssistant:', error.message);
+    console.error('Stack trace:', error.stack);
+    console.error('Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
     // Return a fallback response
     return {
       response: "I apologize, but I'm currently experiencing technical difficulties. Please try again in a moment, or check that all environment variables are properly configured.",

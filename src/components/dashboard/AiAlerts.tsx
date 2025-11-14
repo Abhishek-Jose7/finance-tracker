@@ -1,11 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, Info, TrendingUp, DollarSign } from "lucide-react";
+import { AlertTriangle, Info, TrendingUp, DollarSign, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/context/AppContext";
 
 export function AiAlerts() {
   const { categories, transactions, userProfile } = useAppContext();
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
+
+  const handleDismiss = (alertId: string) => {
+    setDismissedAlerts(prev => new Set(prev).add(alertId));
+  };
 
   // Generate real-time alerts based on actual data
   const alerts: Array<{
@@ -72,15 +79,18 @@ export function AiAlerts() {
     }
   }
 
+  // Filter out dismissed alerts
+  const visibleAlerts = alerts.filter(alert => !dismissedAlerts.has(alert.id));
+
   return (
     <div>
       <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">AI Alerts</h2>
       <div className="space-y-3 sm:space-y-4">
-        {alerts.map((alert) => (
+        {visibleAlerts.map((alert) => (
           <Alert 
             key={alert.id} 
             variant={alert.type === 'danger' || alert.type === 'warning' ? "destructive" : "default"}
-            className={`${alert.type === 'info' ? 'border-blue-500 bg-blue-500/10' : ''} p-3 sm:p-4`}
+            className={`${alert.type === 'info' ? 'border-blue-500 bg-blue-500/10' : ''} p-3 sm:p-4 relative`}
           >
             {alert.type === 'danger' || alert.type === 'warning' ? (
               <AlertTriangle className="h-4 w-4 flex-shrink-0" />
@@ -89,13 +99,23 @@ export function AiAlerts() {
             ) : (
               <Info className="h-4 w-4 flex-shrink-0" />
             )}
-            <AlertTitle className="text-sm sm:text-base">{alert.title}</AlertTitle>
-            <AlertDescription className="text-xs sm:text-sm">
-              {alert.description}
-            </AlertDescription>
+            <div className="flex-1">
+              <AlertTitle className="text-sm sm:text-base">{alert.title}</AlertTitle>
+              <AlertDescription className="text-xs sm:text-sm">
+                {alert.description}
+              </AlertDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 h-6 w-6"
+              onClick={() => handleDismiss(alert.id)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </Alert>
         ))}
-        {alerts.length === 0 && (
+        {visibleAlerts.length === 0 && (
           <Alert className="border-green-500 bg-green-500/10 p-3 sm:p-4">
             <Info className="h-4 w-4 text-green-500 flex-shrink-0" />
             <AlertTitle className="text-sm sm:text-base">All Clear!</AlertTitle>
