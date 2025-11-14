@@ -1,7 +1,7 @@
 'use server';
 
 import { currentUser } from '@clerk/nextjs/server';
-import { supabase, supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function syncUserToDatabase() {
   const user = await currentUser();
@@ -87,7 +87,7 @@ export async function getUserCategories() {
   const user = await currentUser();
   if (!user) return [];
 
-  const { data: dbUser } = await supabase
+  const { data: dbUser } = await supabaseAdmin
     .from('users')
     .select('id')
     .eq('clerk_user_id', user.id)
@@ -95,7 +95,7 @@ export async function getUserCategories() {
 
   if (!dbUser) return [];
 
-  const { data: categories, error } = await supabase
+  const { data: categories, error } = await supabaseAdmin
     .from('categories')
     .select('*')
     .eq('user_id', dbUser.id);
@@ -119,7 +119,7 @@ export async function createTransaction(transaction: {
   const user = await currentUser();
   if (!user) throw new Error('Not authenticated');
 
-  const { data: dbUser } = await supabase
+  const { data: dbUser } = await supabaseAdmin
     .from('users')
     .select('id')
     .eq('clerk_user_id', user.id)
@@ -127,7 +127,7 @@ export async function createTransaction(transaction: {
 
   if (!dbUser) throw new Error('User not found in database');
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('transactions')
     .insert({
       user_id: dbUser.id,
@@ -156,7 +156,7 @@ export async function updateCategory(
   const user = await currentUser();
   if (!user) throw new Error('Not authenticated');
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('categories')
     .update(updates)
     .eq('id', categoryId)
@@ -175,7 +175,7 @@ export async function createDefaultCategories() {
   const user = await currentUser();
   if (!user) return;
 
-  const { data: dbUser } = await supabase
+  const { data: dbUser } = await supabaseAdmin
     .from('users')
     .select('id')
     .eq('clerk_user_id', user.id)
@@ -184,7 +184,7 @@ export async function createDefaultCategories() {
   if (!dbUser) return;
 
   // Check if user already has categories
-  const { data: existingCategories } = await supabase
+  const { data: existingCategories } = await supabaseAdmin
     .from('categories')
     .select('id')
     .eq('user_id', dbUser.id)
@@ -205,7 +205,7 @@ export async function createDefaultCategories() {
     { name: 'Education', budget_limit: 2000, color: '#f97316', icon: 'BookOpen' },
   ];
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('categories')
     .insert(
       defaultCategories.map(cat => ({
@@ -223,7 +223,7 @@ export async function updateTransactionCategory(transactionId: string, category:
   const user = await currentUser();
   if (!user) throw new Error('Not authenticated');
 
-  const { data: dbUser } = await supabase
+  const { data: dbUser } = await supabaseAdmin
     .from('users')
     .select('id')
     .eq('clerk_user_id', user.id)
@@ -231,7 +231,7 @@ export async function updateTransactionCategory(transactionId: string, category:
 
   if (!dbUser) throw new Error('User not found in database');
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('transactions')
     .update({
       category,
@@ -258,7 +258,7 @@ export async function deleteUserAccount() {
     return { error: 'Not authenticated' };
   }
 
-  const { data: dbUser } = await supabase
+  const { data: dbUser } = await supabaseAdmin
     .from('users')
     .select('id')
     .eq('clerk_user_id', user.id)
@@ -279,7 +279,7 @@ export async function deleteUserAccount() {
     await supabaseAdmin.from('user_preferences').delete().eq('user_id', dbUser.id);
     
     // Finally delete the user
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('users')
       .delete()
       .eq('id', dbUser.id);
@@ -312,7 +312,7 @@ export async function completeUserOnboarding(profileData: {
     return { error: 'Unauthorized' };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('users')
     .update({
       ...profileData,
@@ -325,4 +325,5 @@ export async function completeUserOnboarding(profileData: {
 
   return { data, error };
 }
+
 
