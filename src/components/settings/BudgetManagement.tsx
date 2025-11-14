@@ -27,6 +27,7 @@ export function BudgetManagement() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
+    console.log("BudgetManagement - Categories loaded:", categories.length, categories);
     const initialBudgets = categories.reduce((acc, cat) => ({
       ...acc,
       [cat.id]: cat.budget,
@@ -102,60 +103,68 @@ export function BudgetManagement() {
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {categories.map((category) => {
-            const IconComponent = iconMap[category.icon.name] || ShoppingCart;
-            const spentPercentage = category.budget > 0 ? (category.spent / category.budget) * 100 : 0;
+        {categories.length === 0 ? (
+          <Alert className="bg-blue-500/10 border-blue-500/50">
+            <AlertDescription className="text-blue-200">
+              ℹ️ No budget categories found. Please complete the onboarding process or refresh the page.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {categories.map((category) => {
+              const IconComponent = iconMap[category.icon.name] || ShoppingCart;
+              const spentPercentage = category.budget > 0 ? (category.spent / category.budget) * 100 : 0;
 
-            return (
-              <div
-                key={category.id}
-                className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg border border-slate-600 hover:border-primary/50 transition-colors"
-              >
+              return (
                 <div
-                  className="p-2 rounded-lg shrink-0"
-                  style={{ backgroundColor: category.color + "20" }}
+                  key={category.id}
+                  className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg border border-slate-600 hover:border-primary/50 transition-colors"
                 >
-                  <IconComponent
-                    className="h-5 w-5"
-                    style={{ color: category.color }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <Label className="text-slate-200 text-sm font-medium">
-                    {category.name}
-                  </Label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Input
-                      type="number"
-                      min="0"
-                      step="10"
-                      value={budgets[category.id] || 0}
-                      onChange={(e) =>
-                        setBudgets({
-                          ...budgets,
-                          [category.id]: parseFloat(e.target.value) || 0,
-                        })
-                      }
-                      className="bg-slate-700 border-slate-600 text-white h-8 text-sm"
+                  <div
+                    className="p-2 rounded-lg shrink-0"
+                    style={{ backgroundColor: category.color + "20" }}
+                  >
+                    <IconComponent
+                      className="h-5 w-5"
+                      style={{ color: category.color }}
                     />
                   </div>
-                  <div className="mt-2 flex items-center gap-2 text-xs">
-                    <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${spentPercentage > 100 ? "bg-red-500" : "bg-green-500"}`}
-                        style={{ width: `${Math.min(spentPercentage, 100)}%` }}
+                  <div className="flex-1 min-w-0">
+                    <Label className="text-slate-200 text-sm font-medium">
+                      {category.name}
+                    </Label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input
+                        type="number"
+                        min="0"
+                        step="10"
+                        value={budgets[category.id] || 0}
+                        onChange={(e) =>
+                          setBudgets({
+                            ...budgets,
+                            [category.id]: parseFloat(e.target.value) || 0,
+                          })
+                        }
+                        className="bg-slate-700 border-slate-600 text-white h-8 text-sm"
                       />
                     </div>
-                    <span className={`${spentPercentage > 100 ? "text-red-400" : "text-slate-400"} whitespace-nowrap`}>
-                      {category.spent.toFixed(0)} / {category.budget.toFixed(0)}
-                    </span>
+                    <div className="mt-2 flex items-center gap-2 text-xs">
+                      <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full ${spentPercentage > 100 ? "bg-red-500" : "bg-green-500"}`}
+                          style={{ width: `${Math.min(spentPercentage, 100)}%` }}
+                        />
+                      </div>
+                      <span className={`${spentPercentage > 100 ? "text-red-400" : "text-slate-400"} whitespace-nowrap`}>
+                        {category.spent.toFixed(0)} / {category.budget.toFixed(0)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="flex gap-3 pt-4">
           <Button

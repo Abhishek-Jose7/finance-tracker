@@ -99,8 +99,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
           chat_context: (dbUser as any).chat_context || null,
         });
         
-        // Create default categories if needed
-        await createDefaultCategories();
+        // Create default categories ONLY if user hasn't completed onboarding
+        // (Onboarding creates custom categories, we don't want to override)
+        if (!dbUser.onboarding_completed) {
+          await createDefaultCategories();
+        }
 
         // Fetch user data
         const [dbTransactions, dbCategories] = await Promise.all([

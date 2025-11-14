@@ -104,8 +104,16 @@ export function EnhancedProfileOnboarding() {
         return;
       }
 
-      router.push("/");
+      console.log("✅ Onboarding completed successfully! Profile and budgets saved.");
+      
+      // Force a hard refresh to reload all data
+      router.push("/dashboard");
       router.refresh();
+      
+      // Also force a window location reload to ensure AppContext reloads
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 100);
     } catch (error) {
       console.error("Unexpected error:", error);
       alert("An unexpected error occurred. Please try again.");
